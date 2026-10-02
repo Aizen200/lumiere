@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: var(--font-serif), "Cormorant Garamond", Georgia, serif;
+  --font-cinzel: var(--font-cinzel), "Cinzel", "Times New Roman", serif;
+  --font-sans: var(--font-sans), "Montserrat", -apple-system, sans-serif;
+  
+  --color-vault-bg: #0c0b0a;
+  --color-vault-surface: #141210;
+  --color-vault-card: #181613;
+  --color-vault-border: #2a2520;
+  --color-vault-gold: #c5a880;
+  --color-vault-gold-muted: #8e795d;
+  --color-vault-gold-light: #dfcaa7;
+  --color-vault-cream: #f5f2eb;
+  --color-vault-muted: #a49c90;
+}
+
+body {
+  background-color: #0c0b0a;
+  color: #f5f2eb;
+  font-family: var(--font-sans);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-cinzel {
+  font-family: var(--font-cinzel);
+}
+
+/* Vintage double border frame */
+.vintage-frame {
+  position: relative;
+  border: 1px solid rgba(197, 168, 128, 0.25);
+}
+
+.vintage-frame::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(197, 168, 128, 0.15);
+  pointer-events: none;
+  transition: border-color 0.5s ease;
+}
+
+.vintage-frame:hover::before {
+  border-color: rgba(197, 168, 128, 0.4);
+}
+
+/* Subtle archival parchment grain overlay */
+.archival-grain {
+  background-image: radial-gradient(circle at 50% 0%, rgba(197, 168, 128, 0.05) 0%, transparent 60%);
+}
