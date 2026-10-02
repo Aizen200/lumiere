@@ -1,55 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Jost:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-serif: var(--font-serif), "Cormorant Garamond", Georgia, serif;
-  --font-cinzel: var(--font-cinzel), "Cinzel", "Times New Roman", serif;
-  --font-sans: var(--font-sans), "Montserrat", -apple-system, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-cormorant: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Jost", -apple-system, sans-serif;
   
-  --color-vault-bg: #0c0b0a;
-  --color-vault-surface: #141210;
-  --color-vault-card: #181613;
-  --color-vault-border: #2a2520;
-  --color-vault-gold: #c5a880;
-  --color-vault-gold-muted: #8e795d;
-  --color-vault-gold-light: #dfcaa7;
-  --color-vault-cream: #f5f2eb;
-  --color-vault-muted: #a49c90;
+  --color-sand-base: #fbfbf9;
+  --color-sand-surface: #f4f2ec;
+  --color-sand-card: #ffffff;
+  --color-sand-border: #e8e4dc;
+  --color-sand-border-subtle: #f0ece4;
+  --color-ink: #141312;
+  --color-ink-secondary: #57534e;
+  --color-ink-muted: #8c827a;
+  --color-accent-gold: #c5a880;
+  --color-accent-tiffany: #81d8d0;
+  --color-dark-noir: #121110;
 }
 
 body {
-  background-color: #0c0b0a;
-  color: #f5f2eb;
+  background-color: #fbfbf9;
+  color: #141312;
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
 .font-serif {
   font-family: var(--font-serif);
 }
 
-.font-cinzel {
-  font-family: var(--font-cinzel);
+.font-cormorant {
+  font-family: var(--font-cormorant);
 }
 
-/* Vintage double border frame */
-.vintage-frame {
-  position: relative;
-  border: 1px solid rgba(197, 168, 128, 0.25);
+.font-sans {
+  font-family: var(--font-sans);
 }
 
-.vintage-frame::before {
-  content: "";
-  position: absolute;
-  inset: 6px;
-  border: 1px solid rgba(197, 168, 128, 0.15);
-  pointer-events: none;
-  transition: border-color 0.5s ease;
+/* Restrained Editorial Line */
+.editorial-rule {
+  height: 1px;
+  background-color: #e8e4dc;
 }
 
-.vintage-frame:hover::before {
-  border-color: rgba(197, 168, 128, 0.4);
+/* Subtle luxury image zoom */
+.image-zoom-container {
+  overflow: hidden;
 }
 
-/* Subtle archival parchment grain overlay */
-.archival-grain {
-  background-image: radial-gradient(circle at 50% 0%, rgba(197, 168, 128, 0.05) 0%, transparent 60%);
+.image-zoom-container img {
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+}
+
+.image-zoom-container:hover img {
+  transform: scale(1.04);
 }
