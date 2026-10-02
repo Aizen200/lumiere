@@ -19,6 +19,10 @@
   --color-dark-noir: #121110;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: #fbfbf9;
   color: #141312;
@@ -38,12 +42,6 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Restrained Editorial Line */
-.editorial-rule {
-  height: 1px;
-  background-color: #e8e4dc;
-}
-
 /* Subtle luxury image zoom */
 .image-zoom-container {
   overflow: hidden;
@@ -56,3 +54,101 @@ body {
 .image-zoom-container:hover img {
   transform: scale(1.04);
 }
+
+/* Luxury Easing Curves */
+.ease-luxury {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Subtle continuous ambient drift for heritage workshop */
+@keyframes ambientDrift {
+  0% {
+    transform: scale(1) translateX(0);
+  }
+  50% {
+    transform: scale(1.03) translateX(-0.8%);
+  }
+  100% {
+    transform: scale(1) translateX(0);
+  }
+}
+
+.animate-ambient-drift {
+  animation: ambientDrift 28s ease-in-out infinite;
+}
+
+/* Tiffany Editorial Film Motion */
+@keyframes cinematicPan {
+  0% {
+    transform: scale(1.02) translate(0%, 0%);
+  }
+  50% {
+    transform: scale(1.08) translate(-1.2%, -0.8%);
+  }
+  100% {
+    transform: scale(1.02) translate(0%, 0%);
+  }
+}
+
+.animate-cinematic-pan {
+  animation: cinematicPan 18s ease-in-out infinite alternate;
+}
+
+@keyframes silverGleam {
+  0%, 100% {
+    opacity: 0.15;
+    transform: translateX(-100%) rotate(25deg);
+  }
+  50% {
+    opacity: 0.45;
+    transform: translateX(120%) rotate(25deg);
+  }
+}
+
+.animate-silver-gleam {
+  animation: silverGleam 9s ease-in-out infinite;
+}
+
+
+/* Luxury 3D Book Ledger Effects (Warm Bone & Sand Heirloom Palette) */
+.perspective-book {
+  perspective: 1800px;
+}
+
+.book-shadow {
+  box-shadow: 
+    0 25px 50px -12px rgba(20, 19, 18, 0.08),
+    0 10px 25px -10px rgba(20, 19, 18, 0.05);
+}
+
+.book-spine-gradient {
+  background: linear-gradient(
+    to right,
+    rgba(215, 209, 198, 0.9) 0%,
+    rgba(244, 242, 236, 1) 30%,
+    rgba(235, 230, 222, 1) 50%,
+    rgba(244, 242, 236, 1) 70%,
+    rgba(215, 209, 198, 0.9) 100%
+  );
+}
+
+.book-inner-left-gutter {
+  background: linear-gradient(
+    to right,
+    rgba(20, 19, 18, 0) 0%,
+    rgba(20, 19, 18, 0.02) 65%,
+    rgba(20, 19, 18, 0.08) 92%,
+    rgba(20, 19, 18, 0.15) 100%
+  );
+}
+
+.book-inner-right-gutter {
+  background: linear-gradient(
+    to left,
+    rgba(20, 19, 18, 0) 0%,
+    rgba(20, 19, 18, 0.02) 65%,
+    rgba(20, 19, 18, 0.08) 92%,
+    rgba(20, 19, 18, 0.15) 100%
+  );
+}
+
