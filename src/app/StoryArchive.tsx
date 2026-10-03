@@ -50,10 +50,13 @@ export default function StoryArchive() {
     },
   ];
 
+  const [animatingPhase, setAnimatingPhase] = useState<"idle" | "leaving" | "entering">("idle");
+
   const handleTurnPage = (direction: "next" | "prev") => {
     if (isFlipping) return;
     setFlipDirection(direction);
     setIsFlipping(true);
+    setAnimatingPhase("leaving");
 
     setTimeout(() => {
       if (direction === "next") {
@@ -61,7 +64,12 @@ export default function StoryArchive() {
       } else {
         setCurrentPage((prev) => (prev === 0 ? pages.length - 1 : prev - 1));
       }
-      setIsFlipping(false);
+      setAnimatingPhase("entering");
+
+      setTimeout(() => {
+        setIsFlipping(false);
+        setAnimatingPhase("idle");
+      }, 500);
     }, 450);
   };
 
@@ -97,8 +105,12 @@ export default function StoryArchive() {
               <div className="grid grid-cols-1 lg:grid-cols-12 relative items-stretch">
                 
                 {/* ================= LEFT PAGE (IMAGE) ================= */}
-                <div className={`lg:col-span-6 pr-0 lg:pr-8 pb-10 lg:pb-0 flex flex-col justify-center relative transition-all duration-500 ease-out ${
-                  isFlipping && flipDirection === "prev" ? "opacity-30 -rotate-y-6 scale-[0.98]" : "opacity-100 rotate-0 scale-100"
+                <div className={`lg:col-span-6 pr-0 lg:pr-8 pb-10 lg:pb-0 flex flex-col justify-center relative ${
+                  isFlipping && flipDirection === "prev" && animatingPhase === "leaving"
+                    ? "page-flip-curl-prev"
+                    : isFlipping && flipDirection === "next" && animatingPhase === "entering"
+                    ? "page-flip-enter-next"
+                    : ""
                 }`}>
                   
                   {/* Left Page Inner Shadow / Gutter Gradient */}
@@ -139,8 +151,12 @@ export default function StoryArchive() {
                 </div>
 
                 {/* ================= RIGHT PAGE (EDITORIAL TEXT & FLIP CONTROLS) ================= */}
-                <div className={`lg:col-span-5 pl-0 lg:pl-8 pt-8 lg:pt-0 flex flex-col justify-between relative transition-all duration-500 ease-out ${
-                  isFlipping && flipDirection === "next" ? "opacity-30 rotate-y-6 scale-[0.98]" : "opacity-100 rotate-0 scale-100"
+                <div className={`lg:col-span-5 pl-0 lg:pl-8 pt-8 lg:pt-0 flex flex-col justify-between relative ${
+                  isFlipping && flipDirection === "next" && animatingPhase === "leaving"
+                    ? "page-flip-curl-next"
+                    : isFlipping && flipDirection === "prev" && animatingPhase === "entering"
+                    ? "page-flip-enter-prev"
+                    : ""
                 }`}>
                   
                   {/* Right Page Inner Shadow / Gutter Gradient */}

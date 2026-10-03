@@ -1,10 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Jost:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Raleway:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-serif: "Cinzel", "Cormorant Garamond", Georgia, serif;
   --font-cormorant: "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Jost", -apple-system, sans-serif;
+  --font-cinzel: "Cinzel", Georgia, serif;
+  --font-sans: "Raleway", -apple-system, sans-serif;
   
   --color-sand-base: #fbfbf9;
   --color-sand-surface: #f4f2ec;
@@ -32,6 +33,10 @@ body {
 
 .font-serif {
   font-family: var(--font-serif);
+}
+
+.font-cinzel {
+  font-family: var(--font-cinzel);
 }
 
 .font-cormorant {
@@ -151,4 +156,135 @@ body {
     rgba(20, 19, 18, 0.15) 100%
   );
 }
+
+/* Natural Book Page Flip Animations */
+.page-flip-curl-next {
+  animation: naturalPageTurnNext 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  transform-origin: left center;
+  will-change: transform, opacity, filter;
+}
+
+.page-flip-curl-prev {
+  animation: naturalPageTurnPrev 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  transform-origin: right center;
+  will-change: transform, opacity, filter;
+}
+
+.page-flip-enter-next {
+  animation: naturalPageEnterNext 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: transform, opacity;
+}
+
+.page-flip-enter-prev {
+  animation: naturalPageEnterPrev 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes naturalPageTurnNext {
+  0% {
+    transform: rotateY(0deg) skewY(0deg) scale(1);
+    filter: brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0));
+    opacity: 1;
+  }
+  35% {
+    transform: rotateY(-35deg) skewY(-2deg) scale(0.99) translateY(-3px);
+    filter: brightness(0.96) drop-shadow(-8px 8px 16px rgba(20, 19, 18, 0.12));
+    opacity: 0.9;
+  }
+  65% {
+    transform: rotateY(-65deg) skewY(-1deg) scale(0.98) translateY(-4px);
+    filter: brightness(0.92) drop-shadow(-14px 12px 22px rgba(20, 19, 18, 0.15));
+    opacity: 0.55;
+  }
+  100% {
+    transform: rotateY(-90deg) skewY(0deg) scale(0.97) translateY(0);
+    filter: brightness(0.88) drop-shadow(0 0 0 rgba(0,0,0,0));
+    opacity: 0;
+  }
+}
+
+@keyframes naturalPageEnterNext {
+  0% {
+    transform: rotateY(90deg) skewY(1deg) scale(0.97);
+    filter: brightness(0.88);
+    opacity: 0;
+  }
+  35% {
+    transform: rotateY(55deg) skewY(1deg) scale(0.98);
+    filter: brightness(0.94);
+    opacity: 0.55;
+  }
+  70% {
+    transform: rotateY(20deg) skewY(0.5deg) scale(0.995);
+    filter: brightness(0.98);
+    opacity: 0.88;
+  }
+  100% {
+    transform: rotateY(0deg) skewY(0deg) scale(1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+}
+
+@keyframes naturalPageTurnPrev {
+  0% {
+    transform: rotateY(0deg) skewY(0deg) scale(1);
+    filter: brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0));
+    opacity: 1;
+  }
+  35% {
+    transform: rotateY(35deg) skewY(2deg) scale(0.99) translateY(-3px);
+    filter: brightness(0.96) drop-shadow(8px 8px 16px rgba(20, 19, 18, 0.12));
+    opacity: 0.9;
+  }
+  65% {
+    transform: rotateY(65deg) skewY(1deg) scale(0.98) translateY(-4px);
+    filter: brightness(0.92) drop-shadow(14px 12px 22px rgba(20, 19, 18, 0.15));
+    opacity: 0.55;
+  }
+  100% {
+    transform: rotateY(90deg) skewY(0deg) scale(0.97) translateY(0);
+    filter: brightness(0.88) drop-shadow(0 0 0 rgba(0,0,0,0));
+    opacity: 0;
+  }
+}
+
+@keyframes naturalPageEnterPrev {
+  0% {
+    transform: rotateY(-90deg) skewY(-1deg) scale(0.97);
+    filter: brightness(0.88);
+    opacity: 0;
+  }
+  35% {
+    transform: rotateY(-55deg) skewY(-1deg) scale(0.98);
+    filter: brightness(0.94);
+    opacity: 0.55;
+  }
+  70% {
+    transform: rotateY(-20deg) skewY(-0.5deg) scale(0.995);
+    filter: brightness(0.98);
+    opacity: 0.88;
+  }
+  100% {
+    transform: rotateY(0deg) skewY(0deg) scale(1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+}
+
+/* Hide scrollbars cleanly while preserving scrollability */
+.no-scrollbar::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar,
+.hide-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+
 
