@@ -264,7 +264,6 @@ export default function LandingPage() {
           <div className="order-1 lg:order-2 relative aspect-[4/3] lg:aspect-auto lg:min-h-[min(calc(100svh-7.25rem),52rem)] bg-sand-surface">
             <GiftingVideo
               src="https://media.tiffany.com/is/content/tco/2024_ICONS_BC_BG_VIDEO3_Desktop_SFCC-1"
-              poster="/images/hero_silver.jpg"
               label="Silver pieces from the collection"
             />
           </div>

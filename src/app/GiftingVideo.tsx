@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 
 type GiftingVideoProps = {
   src: string;
-  poster: string;
+  // Optional still shown while loading and if the video fails; omit for video only
+  poster?: string;
   label: string;
 };
 
@@ -41,8 +42,9 @@ export default function GiftingVideo({ src, poster, label }: GiftingVideoProps) 
     }
   };
 
-  // No usable video file: fall back to the poster still, without controls
+  // No usable video file: fall back to the poster still (or nothing), without controls
   if (failed) {
+    if (!poster) return null;
     return (
       <Image
         src={poster}
@@ -65,7 +67,7 @@ export default function GiftingVideo({ src, poster, label }: GiftingVideoProps) 
         muted
         loop
         playsInline
-        preload="metadata"
+        preload={poster ? "metadata" : "auto"}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onError={() => setFailed(true)}
