@@ -3,41 +3,69 @@
 import { useState, useRef, useEffect, MouseEvent } from "react";
 import Image from "next/image";
 
+const LOUPE_RADIUS = 84;
+
+const points = [
+  {
+    title: "Chased by hand",
+    desc: "Shaped and detailed at the bench with hammer and punch. No machine stamping, no die-casting in bulk.",
+  },
+  {
+    title: "Solid 925 sterling",
+    desc: "Every piece is hallmarked and assayed. Nothing plated, nothing hollow.",
+  },
+  {
+    title: "Stored, not displayed",
+    desc: "Kept in cedar and flannel since the day it was made, so the surface is as it left the workshop.",
+  },
+];
+
 export default function HeritageArchive() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loupePos, setLoupePos] = useState({ x: 52, y: 48 });
-  const [isHovered, setIsHovered] = useState(false);
+  const [size, setSize] = useState({ width: 600, height: 450 });
   const isHoveredRef = useRef(false);
 
-  // Smooth continuous ambient patrol for the loupe
+  // Track the canvas size so the magnified layer lines up with the photo
   useEffect(() => {
-    let animId: number;
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Slow idle drift for the loupe, only while the canvas is on screen
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let animId = 0;
     const startTime = Date.now();
 
     const loop = () => {
       if (!isHoveredRef.current) {
-        const elapsed = (Date.now() - startTime) / 1000;
-        // Lissajous curve for natural organic inspection motion
-        const x = 50 + Math.sin(elapsed * 0.45) * 18 + Math.cos(elapsed * 0.22) * 8;
-        const y = 50 + Math.cos(elapsed * 0.38) * 15 + Math.sin(elapsed * 0.18) * 6;
+        const t = (Date.now() - startTime) / 1000;
+        const x = 50 + Math.sin(t * 0.45) * 18 + Math.cos(t * 0.22) * 8;
+        const y = 50 + Math.cos(t * 0.38) * 15 + Math.sin(t * 0.18) * 6;
         setLoupePos({ x, y });
       }
       animId = requestAnimationFrame(loop);
     };
 
-    animId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animId);
+    const observer = new IntersectionObserver(([entry]) => {
+      cancelAnimationFrame(animId);
+      if (entry.isIntersecting) animId = requestAnimationFrame(loop);
+    });
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(animId);
+    };
   }, []);
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    isHoveredRef.current = true;
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    isHoveredRef.current = false;
-  };
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
@@ -47,154 +75,88 @@ export default function HeritageArchive() {
     setLoupePos({ x, y });
   };
 
-  const LOUPE_RADIUS = 84;
-
   return (
-    <section className="py-20 sm:py-28 lg:py-36 px-6 sm:px-12 lg:px-20 bg-[#fbfbf9] border-t border-[#e8e4dc] overflow-hidden">
-      <div className="max-w-[1360px] mx-auto">
-        
-        {/* 2-Column Luxury Heritage Spread */}
+    <section className="section-y bg-sand-surface overflow-hidden">
+      <div className="container-site">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
-          
-          {/* Left Column: Framed Workshop Plate with Interactive Brass Loupe */}
-          <div className="lg:col-span-7">
-            {/* Double Outer Heirloom Frame */}
-            <div className="relative p-4 sm:p-6 lg:p-7 bg-[#f4f2ec] border border-[#dcd6ca] shadow-[0_25px_60px_rgba(20,19,18,0.06)] rounded-[2px]">
-              
-              <div className="relative border border-[#e8e4dc] p-3 sm:p-5 bg-[#fcfbfa]">
-                
-                {/* Corner Hairline Accents */}
-                <div className="absolute top-1.5 left-1.5 w-3 h-3 border-t border-l border-[#8c827a]" />
-                <div className="absolute top-1.5 right-1.5 w-3 h-3 border-t border-r border-[#8c827a]" />
-                <div className="absolute bottom-1.5 left-1.5 w-3 h-3 border-b border-l border-[#8c827a]" />
-                <div className="absolute bottom-1.5 right-1.5 w-3 h-3 border-b border-r border-[#8c827a]" />
 
-                {/* Interactive Inspection Canvas */}
-                <div 
-                  ref={containerRef}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                  onMouseMove={handleMouseMove}
-                  className="relative aspect-[4/3] sm:aspect-[16/11] w-full overflow-hidden bg-[#e8e4dc] cursor-crosshair group"
+          {/* Workshop photo with magnifying loupe */}
+          <figure className="lg:col-span-7">
+            <div
+              ref={containerRef}
+              onMouseEnter={() => (isHoveredRef.current = true)}
+              onMouseLeave={() => (isHoveredRef.current = false)}
+              onMouseMove={handleMouseMove}
+              className="relative aspect-[4/3] w-full overflow-hidden bg-sand-border cursor-crosshair"
+            >
+              <Image
+                src="/images/heritage_workshop.jpg"
+                alt="Fraser & Hawes silversmiths at work in the workshop"
+                fill
+                sizes="(min-width: 1024px) 55vw, 100vw"
+                className="object-cover animate-ambient-drift"
+              />
+
+              <div
+                className="absolute pointer-events-none z-10 rounded-full overflow-hidden shadow-[0_18px_45px_rgba(20,19,18,0.4)]"
+                style={{
+                  width: LOUPE_RADIUS * 2,
+                  height: LOUPE_RADIUS * 2,
+                  left: `${loupePos.x}%`,
+                  top: `${loupePos.y}%`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <div
+                  className="absolute"
+                  style={{
+                    width: size.width,
+                    height: size.height,
+                    left: -(loupePos.x / 100) * size.width + LOUPE_RADIUS,
+                    top: -(loupePos.y / 100) * size.height + LOUPE_RADIUS,
+                  }}
                 >
-                  {/* Base Layer: Foundry Workshop with Ambient Drift */}
                   <Image
-                    src="/images/heritage_workshop.jpg"
-                    alt="Fraser &amp; Hawes Master Silversmiths Workshop 1869"
+                    src="/images/hero_silver.jpg"
+                    alt=""
                     fill
-                    className="object-cover animate-ambient-drift filter contrast-[1.05]"
-                    priority
+                    sizes="55vw"
+                    className="object-cover scale-135"
                   />
-
-                  {/* True Magnifying Glass Assembly: Circular Glass + Brass Bezel moving as ONE unit */}
-                  <div
-                    className="absolute pointer-events-none z-30 rounded-full overflow-hidden will-change-transform shadow-[0_18px_45px_rgba(20,19,18,0.45),0_4px_12px_rgba(0,0,0,0.3)]"
-                    style={{
-                      width: `${LOUPE_RADIUS * 2}px`,
-                      height: `${LOUPE_RADIUS * 2}px`,
-                      left: `${loupePos.x}%`,
-                      top: `${loupePos.y}%`,
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  >
-                    {/* Synchronized Magnified Image (Calculated inverse offset for authentic optical magnification) */}
-                    <div
-                      className="absolute"
-                      style={{
-                        width: containerRef.current ? `${containerRef.current.clientWidth}px` : "100%",
-                        height: containerRef.current ? `${containerRef.current.clientHeight}px` : "100%",
-                        left: `${-((loupePos.x / 100) * (containerRef.current?.clientWidth || 600)) + LOUPE_RADIUS}px`,
-                        top: `${-((loupePos.y / 100) * (containerRef.current?.clientHeight || 450)) + LOUPE_RADIUS}px`,
-                      }}
-                    >
-                      <Image
-                        src="/images/hero_silver.jpg"
-                        alt="Inspected Master Sterling Urn Detail"
-                        fill
-                        className="object-cover scale-135 brightness-108 contrast-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-tr from-black/25 via-transparent to-white/15" />
-                    </div>
-
-                    {/* Integrated Brass Rim & Lens Glare */}
-                    <div className="absolute inset-0 rounded-full border-[3px] border-[#c5a880] pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.35)]">
-                      <div className="absolute inset-1 rounded-full border border-white/50 opacity-60" />
-                    </div>
-                  </div>
-
                 </div>
-
-                {/* Subtle caption beneath artwork frame */}
-                <div className="mt-3.5 flex items-center justify-between text-[10px] font-sans tracking-[0.2em] uppercase text-[#8c827a] px-1">
-                  <span>Archival Plate • Workshop Circa 1869</span>
-                  <span className="hidden sm:inline">Optical Magnification Active</span>
-                </div>
-
+                <div className="absolute inset-0 rounded-full border-[3px] border-accent-gold shadow-[inset_0_0_15px_rgba(0,0,0,0.35)]" />
               </div>
-
             </div>
-          </div>
+            <figcaption className="mt-3 text-sm text-ink-muted">
+              Move over the photograph to look closer.
+            </figcaption>
+          </figure>
 
-          {/* Right Column: Editorial Legacy Typography Stack & Bullet Pillars */}
-          <div className="lg:col-span-5 flex flex-col justify-center text-left py-2 sm:py-6">
-
-            {/* Prominent Serif Headline */}
-            <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-[#141312] tracking-tight leading-[1.08] mb-6 font-normal">
-              A Legacy of Art-in-Silver
+          {/* Text */}
+          <div className="lg:col-span-5">
+            <h2 className="font-serif text-4xl sm:text-5xl leading-[1.05] text-ink mb-6">
+              A legacy of art in silver
             </h2>
-
-            {/* Introductory Body Copy */}
-            <p className="font-sans text-sm sm:text-[15px] text-[#57534e] max-w-lg leading-relaxed font-normal mb-8">
-              With over 150 years of legacy, preserving the timeless methods of master silversmiths. Each piece is a testament to an era when craft was unhurried.
+            <p className="text-base leading-[1.7] text-ink-secondary max-w-md mb-10">
+              For over 150 years we&apos;ve worked the same way: slowly, by hand, one piece at a time. The methods haven&apos;t changed much, and we don&apos;t want them to.
             </p>
 
-            {/* Curated Heritage Bullet Points */}
-            <div className="space-y-4 pt-2 pb-8 border-t border-b border-[#e8e4dc] my-1">
-              {[
-                {
-                  title: "Single-Block Hand Chasing",
-                  desc: "Forged and detailed by hand without computerized stamping or high-volume die-casts."
-                },
-                {
-                  title: "925 Solid Assay Standard",
-                  desc: "Independently certified sterling silver, verified by historic British &amp; Indian assay registers."
-                },
-                {
-                  title: "Archival Vault Preservation",
-                  desc: "Kept untarnished in climate-controlled cedar and flannel allocations across decades."
-                }
-              ].map((bullet, idx) => (
-                <div key={idx} className="flex items-start gap-3.5 group">
-                  {/* Subtle minimalist diamond bullet marker */}
-                  <span className="w-1.5 h-1.5 rotate-45 bg-[#8c827a] mt-2 shrink-0 group-hover:bg-[#141312] transition-colors" />
-                  <div className="flex-1 text-left">
-                    <span className="font-sans font-medium text-xs sm:text-sm text-[#141312] tracking-wide block mb-0.5">
-                      {bullet.title}
-                    </span>
-                    <span className="font-sans text-xs text-[#6e6862] leading-relaxed block">
-                      {bullet.desc}
-                    </span>
-                  </div>
+            <dl className="border-t border-sand-border">
+              {points.map((point) => (
+                <div key={point.title} className="py-5 border-b border-sand-border">
+                  <dt className="text-[15px] font-medium text-ink mb-1">{point.title}</dt>
+                  <dd className="text-sm leading-relaxed text-ink-secondary">{point.desc}</dd>
                 </div>
               ))}
-            </div>
+            </dl>
 
-            {/* Call to action link with comfortable breathing space */}
-            <div className="pt-6">
-              <a 
-                href="#collections" 
-                className="group relative inline-block text-[11px] sm:text-xs font-sans font-medium uppercase tracking-[0.25em] text-[#141312] pb-1 border-b border-[#141312] hover:opacity-70 transition-opacity"
-              >
-                DISCOVER THE ARCHIVE &rarr;
-              </a>
-            </div>
-
+            <a href="#craft" className="link-line inline-block mt-10">
+              How we make it
+            </a>
           </div>
 
         </div>
-
       </div>
     </section>
   );
 }
-

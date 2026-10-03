@@ -3,6 +3,10 @@
 import Image from "next/image";
 import { useState } from "react";
 
+// Must match the page-flip animation durations in globals.css
+const FLIP_OUT_MS = 380;
+const FLIP_IN_MS = 520;
+
 export default function StoryArchive() {
   const [currentPage, setCurrentPage] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -52,48 +56,51 @@ export default function StoryArchive() {
 
   const [animatingPhase, setAnimatingPhase] = useState<"idle" | "leaving" | "entering">("idle");
 
-  const handleTurnPage = (direction: "next" | "prev") => {
+  const handleTurnPage = (direction: "next" | "prev", target?: number) => {
     if (isFlipping) return;
+    const nextPage =
+      target ??
+      (direction === "next"
+        ? (currentPage + 1) % pages.length
+        : (currentPage - 1 + pages.length) % pages.length);
+
     setFlipDirection(direction);
     setIsFlipping(true);
     setAnimatingPhase("leaving");
 
+    // Swap content while the turning page is edge-on, then let the new page settle
     setTimeout(() => {
-      if (direction === "next") {
-        setCurrentPage((prev) => (prev === pages.length - 1 ? 0 : prev + 1));
-      } else {
-        setCurrentPage((prev) => (prev === 0 ? pages.length - 1 : prev - 1));
-      }
+      setCurrentPage(nextPage);
       setAnimatingPhase("entering");
 
       setTimeout(() => {
         setIsFlipping(false);
         setAnimatingPhase("idle");
-      }, 500);
-    }, 450);
+      }, FLIP_IN_MS);
+    }, FLIP_OUT_MS);
   };
 
   const current = pages[currentPage];
 
   return (
-    <section id="story" className="py-24 sm:py-32 px-4 sm:px-8 lg:px-12 bg-[#f4f2ec] text-[#141312] border-t border-[#e8e4dc] overflow-hidden">
-      <div className="max-w-[1240px] mx-auto">
+    <section id="story" className="section-y bg-sand-surface text-ink overflow-hidden">
+      <div className="container-site">
         
         {/* Curatorial Header */}
-        <div className="text-center mb-14">
-          <h2 className="text-3xl sm:text-5xl font-serif text-[#141312] tracking-tight font-normal">
+        <div className="text-center mb-10 lg:mb-14">
+          <h2 className="font-serif text-4xl sm:text-5xl leading-[1.05] text-ink">
             How These Pieces Came to Be Here
           </h2>
         </div>
 
         {/* 3D Book Ledger Container */}
-        <div className="perspective-book relative w-full">
+        <div className="relative w-full">
           
           {/* Book Outer Binding Frame in Warm Sand / Heirloom Linen */}
-          <div className="relative w-full bg-[#fbfbf9] border border-[#dcd6ca] p-3 sm:p-5 lg:p-7 shadow-[0_20px_50px_rgba(20,19,18,0.08)] rounded-[2px]">
+          <div className="relative w-full bg-[#fbfbf9] border border-[#dcd6ca] p-2 sm:p-3 lg:p-4 shadow-[0_20px_50px_rgba(20,19,18,0.08)] rounded-[2px]">
             
             {/* Fine Inset Hairline Border */}
-            <div className="border border-[#e8e4dc] p-4 sm:p-8 lg:p-10 relative bg-[#fcfbfa]">
+            <div className="border border-[#e8e4dc] px-5 py-6 sm:p-8 lg:px-12 lg:py-14 relative bg-[#fcfbfa]">
               
               {/* Corner Accents */}
               <div className="absolute top-1 left-1 w-3 h-3 border-t border-l border-[#8c827a]" />
@@ -105,7 +112,7 @@ export default function StoryArchive() {
               <div className="grid grid-cols-1 lg:grid-cols-12 relative items-stretch">
                 
                 {/* ================= LEFT PAGE (IMAGE) ================= */}
-                <div className={`lg:col-span-6 pr-0 lg:pr-8 pb-10 lg:pb-0 flex flex-col justify-center relative ${
+                <div className={`lg:col-span-6 lg:pr-10 pb-8 lg:pb-0 flex flex-col justify-center relative ${
                   isFlipping && flipDirection === "prev" && animatingPhase === "leaving"
                     ? "page-flip-curl-prev"
                     : isFlipping && flipDirection === "next" && animatingPhase === "entering"
@@ -151,7 +158,7 @@ export default function StoryArchive() {
                 </div>
 
                 {/* ================= RIGHT PAGE (EDITORIAL TEXT & FLIP CONTROLS) ================= */}
-                <div className={`lg:col-span-5 pl-0 lg:pl-8 pt-8 lg:pt-0 flex flex-col justify-between relative ${
+                <div className={`lg:col-span-5 lg:pl-10 flex flex-col justify-between relative ${
                   isFlipping && flipDirection === "next" && animatingPhase === "leaving"
                     ? "page-flip-curl-next"
                     : isFlipping && flipDirection === "prev" && animatingPhase === "entering"
@@ -163,7 +170,7 @@ export default function StoryArchive() {
                   <div className="hidden lg:block absolute top-0 left-0 w-12 h-full book-inner-right-gutter pointer-events-none z-20" />
 
                   {/* Right Page Body Content */}
-                  <div className="flex-1 flex flex-col justify-center py-4">
+                  <div className="flex-1 flex flex-col justify-center pb-8 lg:py-6">
                     
                     {/* Roman Numeral Callout with Rule */}
                     <div className="flex items-center gap-4 mb-4">
@@ -186,14 +193,14 @@ export default function StoryArchive() {
                     <div className="w-10 h-[1px] bg-[#e8e4dc] mb-6" />
 
                     {/* Body Text */}
-                    <p className="font-sans text-xs sm:text-sm text-[#57534e] leading-relaxed mb-6 font-normal">
+                    <p className="font-sans text-[15px] text-[#57534e] leading-[1.7] max-w-md font-normal">
                       {current.body}
                     </p>
 
                   </div>
 
                   {/* Bottom Turn Page Navigation Matching Reference Image */}
-                  <div className="flex items-center justify-between pt-6 border-t border-[#e8e4dc]">
+                  <div className="flex items-center justify-between pt-5 border-t border-[#e8e4dc]">
                     {/* Turn Back Button */}
                     <button
                       onClick={() => handleTurnPage("prev")}
@@ -211,7 +218,7 @@ export default function StoryArchive() {
                           key={idx}
                           onClick={() => {
                             if (idx === currentPage || isFlipping) return;
-                            handleTurnPage(idx > currentPage ? "next" : "prev");
+                            handleTurnPage(idx > currentPage ? "next" : "prev", idx);
                           }}
                           className={`transition-all duration-300 cursor-pointer ${
                             currentPage === idx

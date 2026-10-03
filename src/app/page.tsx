@@ -3,668 +3,370 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import StoryArchive from "./StoryArchive";
+import GiftingVideo from "./GiftingVideo";
 import HeritageArchive from "./HeritageArchive";
+import { categories, productsByCategory, type CategoryId, type Product } from "./products";
+
+// Where product enquiries are sent. Replace with the real address.
+const ENQUIRY_EMAIL = "enquiries@example.com";
+
+const enquiryLink = (product: Product) =>
+  `mailto:${ENQUIRY_EMAIL}?subject=${encodeURIComponent(`Enquiry: ${product.name} (${product.pieceNo})`)}`;
+
+// Product card; the angle switcher only shows when a piece has several photographs
+function ProductCard({ product }: { product: Product }) {
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+  return (
+    <article className="group">
+      <div className="relative aspect-[4/5] mb-4 overflow-hidden bg-sand-surface">
+        <Image
+          src={product.images[activeImgIndex]}
+          alt={product.name}
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 300px, 72vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+        />
+
+        {/* Angle switcher */}
+        <div className={`absolute bottom-0 inset-x-0 justify-center gap-1 pb-3 ${product.images.length > 1 ? "flex" : "hidden"}`}>
+          {product.images.map((_, imgIdx) => (
+            <button
+              key={imgIdx}
+              onClick={() => setActiveImgIndex(imgIdx)}
+              aria-label={`View angle ${imgIdx + 1}`}
+              className="py-2 px-0.5 cursor-pointer"
+            >
+              <span
+                className={`block h-[2px] transition-all duration-300 ${
+                  activeImgIndex === imgIdx ? "w-5 bg-white" : "w-2.5 bg-white/50"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <h3 className="text-[15px] text-ink leading-snug mb-4">{product.name}</h3>
+      <a
+        href={enquiryLink(product)}
+        className="inline-flex items-center justify-center w-full h-11 border border-ink/25 text-sm tracking-[0.04em] text-ink hover:bg-ink hover:border-ink hover:text-sand-base transition-colors"
+      >
+        Contact for enquiry
+      </a>
+    </article>
+  );
+}
+
+const craftPillars = [
+  {
+    title: "Hallmark Close-Up",
+    subtitle: "British Assay Stamp",
+    desc: "Independently struck assay hallmarks visible under magnification, documenting date, foundry mark, and town standard.",
+    tag: "Verified Mark",
+    image: "/images/silver_hallmark.jpg",
+    alt: "British Assay Hallmark on Sterling Silver",
+  },
+  {
+    title: "Sterling Standard",
+    subtitle: "92.5% Pure Silver",
+    desc: "Guaranteed solid sterling bullion throughout. Absolutely no electroplating, hollow flashing, or base-metal core.",
+    tag: "925 Assay Pure",
+    image: "/images/cat_accessories.jpg",
+    alt: "925 Solid Sterling Standard",
+  },
+  {
+    title: "Hand-Finishing",
+    subtitle: "Master Artisan Chasing",
+    desc: "Individually repoussé-hammered and hand-burnished by silversmiths with decades of lineage at traditional benches.",
+    tag: "Artisan Finished",
+    image: "/images/heritage_workshop.jpg",
+    alt: "Artisan Hand Chasing and Finishing",
+  },
+  {
+    title: "Certificate of Authenticity",
+    subtitle: "Archival Registrar Folio",
+    desc: "Each piece is accompanied by an embossed document of authenticity signed by our head registrar detailing catalogued provenance.",
+    tag: "Serialized Registry",
+    image: "/images/cat_decor.jpg",
+    alt: "Certificate of Authenticity and Provenance",
+  },
+  {
+    title: "The Presentation Box",
+    subtitle: "Velvet & Cedar Casing",
+    desc: "Delivered inside our signature velvet-lined heirloom presentation case with tarnish-inhibiting archival flannel wrap.",
+    tag: "Heirloom Casing",
+    image: "/images/cat_serveware.jpg",
+    alt: "Heirloom Presentation Box and Casing",
+  },
+];
+
+const giftingRows = [
+  {
+    title: "Weddings, anniversaries, corporate gifts, christenings.",
+    body: "Any piece from the Vault can be wrapped for the occasion: our presentation box, a silk ribbon, a hand-pressed wax seal, and a note written out by our calligrapher.",
+    links: [
+      { label: "Request gift wrapping", href: "#faq" },
+    ],
+    image: "/images/campaign_frame_1.jpg",
+    video:
+      "https://asset.swarovski.com/videos/f_auto,q_auto,w_960,h_960,c_fill/swa-cms/videos/Nespresso_WW_AWR_TVC_Festive26_OL_Paid_Organic_30s_VID_1x1_26-27/Nespresso_WW_AWR_TVC_Festive26_OL_Paid_Organic_30s_VID_1x1_26-27_INTT-BIG.mp4",
+    imagePosition: "object-center",
+    alt: "Hands wearing sterling silver rings and bangles",
+  },
+  {
+    title: "Silver that carries the moment.",
+    body: "Every piece is hallmarked and recorded in our ledger before it leaves us, so the gift you give today comes with a history your family can trace.",
+    links: [{ label: "Shop the collection", href: "#collections" }],
+    image: "/images/campaign_frame_2.jpg",
+    imagePosition: "object-[30%_center]",
+    alt: "Woman wearing a sterling silver collar and ear cuff",
+  },
+];
+
+const faqs = [
+  {
+    q: "Is it genuine sterling silver?",
+    a: "Yes. Every piece is solid 925 sterling silver and carries its assay hallmark.",
+  },
+  {
+    q: "Why is it discounted?",
+    a: "We made these pieces years ago, when silver cost much less, and kept them in our vault. We're selling them at what they cost us then, not at today's silver price.",
+  },
+  {
+    q: "Can I return it?",
+    a: "Yes, within 30 days, as long as it's in its original condition and packaging. Every piece also carries our lifetime workshop warranty.",
+  },
+  {
+    q: "How is it shipped?",
+    a: "Fully insured, and someone needs to sign for it on delivery.",
+  },
+  {
+    q: "Can I have it gift-wrapped?",
+    a: "Yes. At checkout you can add our gift wrapping with a wax seal and a handwritten note.",
+  },
+  {
+    q: "Will there be more pieces?",
+    a: "No. The Vault Release is only what we have in storage. Once a piece is sold, it won't be restocked at this price.",
+  },
+];
 
 export default function LandingPage() {
   const [showAnnouncement, setShowAnnouncement] = useState(true);
-  const [hoveredCardId, setHoveredCardId] = useState<number | null>(null);
+  const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
 
-  // Category Tab Filter State ("all" | "divinity" | "decor" | "serveware" | "accessories")
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-
-  // Tiffany & Co. Scroller State
   const collectionScrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [visibleRatio, setVisibleRatio] = useState(1);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  // 68 products divided into four categories
-  // 1. Divinity
-  const divinityProducts = [
-    { 
-      id: 1, 
-      name: "Ornate Silver Ganesha", 
-      original: 45000, 
-      sale: 22500, 
-      images: ["/images/cat_divinity.jpg", "/images/hero_silver.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "DIV-01",
-      provenance: "Calcutta Assay • 925 Sterling"
-    },
-    { 
-      id: 2, 
-      name: "Silver Pooja Thali", 
-      original: 60000, 
-      sale: 30000, 
-      images: ["/images/cat_divinity.jpg", "/images/cat_decor.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "DIV-02",
-      provenance: "Victorian Engraved Border"
-    },
-    { 
-      id: 101, 
-      name: "Antique Krishna Idol", 
-      original: 75000, 
-      sale: 37500, 
-      images: ["/images/cat_divinity.jpg", "/images/hero_silver.jpg", "/images/cat_serveware.jpg"],
-      pieceNo: "DIV-03",
-      provenance: "Chased Solid Bullion"
-    },
-    { 
-      id: 102, 
-      name: "Silver Lakshmi Murti", 
-      original: 55000, 
-      sale: 27500, 
-      images: ["/images/cat_divinity.jpg", "/images/silver_hallmark.jpg", "/images/cat_accessories.jpg"],
-      pieceNo: "DIV-04",
-      provenance: "Hand-Burnished Archive Piece"
-    },
-    { 
-      id: 109, 
-      name: "Sterling Silver Diya Lamp", 
-      original: 34000, 
-      sale: 17000, 
-      images: ["/images/cat_divinity.jpg", "/images/hero_silver.jpg", "/images/cat_decor.jpg"],
-      pieceNo: "DIV-05",
-      provenance: "Fluted Pedestal • Solid 925 Standard"
-    },
-    { 
-      id: 110, 
-      name: "Engraved Kalash Urn", 
-      original: 68000, 
-      sale: 34000, 
-      images: ["/images/cat_divinity.jpg", "/images/cat_serveware.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "DIV-06",
-      provenance: "Temple Relief Repoussé"
-    },
-    { 
-      id: 111, 
-      name: "Silver Bell with Nandi Finial", 
-      original: 28000, 
-      sale: 14000, 
-      images: ["/images/cat_divinity.jpg", "/images/hero_silver.jpg", "/images/cat_accessories.jpg"],
-      pieceNo: "DIV-07",
-      provenance: "Acoustic Silver Casting • Hallmarked"
-    },
-    { 
-      id: 112, 
-      name: "Sacred Panchamrit Cup", 
-      original: 22000, 
-      sale: 11000, 
-      images: ["/images/cat_divinity.jpg", "/images/cat_decor.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "DIV-08",
-      provenance: "Gold Wash Interior • 925 Bullion"
-    },
-  ];
+  const displayedProducts = productsByCategory[activeCategory];
 
-  // 2. Art and Home Decor
-  const decorProducts = [
-    { 
-      id: 3, 
-      name: "Victorian Silver Vase", 
-      original: 85000, 
-      sale: 42500, 
-      images: ["/images/cat_decor.jpg", "/images/hero_silver.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "DEC-01",
-      provenance: "London Hallmarked Masterwork"
-    },
-    { 
-      id: 4, 
-      name: "Vintage Candelabra", 
-      original: 120000, 
-      sale: 60000, 
-      images: ["/images/cat_decor.jpg", "/images/cat_serveware.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "DEC-02",
-      provenance: "Five-Light Ornate Casting"
-    },
-    { 
-      id: 103, 
-      name: "Silver Rose Bowl", 
-      original: 48000, 
-      sale: 24000, 
-      images: ["/images/cat_decor.jpg", "/images/hero_silver.jpg", "/images/cat_divinity.jpg"],
-      pieceNo: "DEC-03",
-      provenance: "Fluted Repoussé Edge"
-    },
-    { 
-      id: 104, 
-      name: "Ornate Picture Frame", 
-      original: 32000, 
-      sale: 16000, 
-      images: ["/images/cat_decor.jpg", "/images/silver_hallmark.jpg", "/images/cat_accessories.jpg"],
-      pieceNo: "DEC-04",
-      provenance: "Velvet Backed Sterling Mount"
-    },
-    { 
-      id: 113, 
-      name: "Art Deco Silver Centerpiece", 
-      original: 98000, 
-      sale: 49000, 
-      images: ["/images/cat_decor.jpg", "/images/hero_silver.jpg", "/images/cat_serveware.jpg"],
-      pieceNo: "DEC-05",
-      provenance: "Geometric Pierced Border"
-    },
-    { 
-      id: 114, 
-      name: "Hand-Chased Silver Goblet Set", 
-      original: 64000, 
-      sale: 32000, 
-      images: ["/images/cat_decor.jpg", "/images/cat_accessories.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "DEC-06",
-      provenance: "Set of 4 • Acanthus Leaf Chasing"
-    },
-    { 
-      id: 115, 
-      name: "Heirloom Silver Mantle Clock", 
-      original: 135000, 
-      sale: 67500, 
-      images: ["/images/cat_decor.jpg", "/images/hero_silver.jpg", "/images/cat_divinity.jpg"],
-      pieceNo: "DEC-07",
-      provenance: "Swiss Movement • Sterling Repoussé"
-    },
-    { 
-      id: 116, 
-      name: "Sterling Silver Fruit Basket", 
-      original: 78000, 
-      sale: 39000, 
-      images: ["/images/cat_decor.jpg", "/images/silver_hallmark.jpg", "/images/cat_serveware.jpg"],
-      pieceNo: "DEC-08",
-      provenance: "Swing Handle • Rococo Detailing"
-    },
-  ];
-
-  // 3. Serveware, Bar and Corporate
-  const servewareProducts = [
-    { 
-      id: 5, 
-      name: "Royal Tea Service", 
-      original: 150000, 
-      sale: 75000, 
-      images: ["/images/cat_serveware.jpg", "/images/hero_silver.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "SRV-01",
-      provenance: "Three-Piece Hallmarked Set"
-    },
-    { 
-      id: 6, 
-      name: "Executive Bar Tray", 
-      original: 48000, 
-      sale: 24000, 
-      images: ["/images/cat_serveware.jpg", "/images/cat_decor.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "SRV-02",
-      provenance: "Heavy Gauge Mirror Polish"
-    },
-    { 
-      id: 105, 
-      name: "Silver Ice Bucket", 
-      original: 95000, 
-      sale: 47500, 
-      images: ["/images/cat_serveware.jpg", "/images/hero_silver.jpg", "/images/cat_divinity.jpg"],
-      pieceNo: "SRV-03",
-      provenance: "Lion Head Handle Accents"
-    },
-    { 
-      id: 106, 
-      name: "Vintage Wine Coaster", 
-      original: 28000, 
-      sale: 14000, 
-      images: ["/images/cat_serveware.jpg", "/images/silver_hallmark.jpg", "/images/cat_accessories.jpg"],
-      pieceNo: "SRV-04",
-      provenance: "Turned Mahogany Base • 925 Rim"
-    },
-    { 
-      id: 117, 
-      name: "Silver Champagne Cooler", 
-      original: 110000, 
-      sale: 55000, 
-      images: ["/images/cat_serveware.jpg", "/images/hero_silver.jpg", "/images/cat_decor.jpg"],
-      pieceNo: "SRV-05",
-      provenance: "Double Walled • Insulated Sterling"
-    },
-    { 
-      id: 118, 
-      name: "Cocktail Shaker & Jigger", 
-      original: 58000, 
-      sale: 29000, 
-      images: ["/images/cat_serveware.jpg", "/images/cat_accessories.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "SRV-06",
-      provenance: "Engraved Measurement Lines • Bayonet Seal"
-    },
-    { 
-      id: 119, 
-      name: "Sterling Gravy Boat & Stand", 
-      original: 42000, 
-      sale: 21000, 
-      images: ["/images/cat_serveware.jpg", "/images/hero_silver.jpg", "/images/cat_divinity.jpg"],
-      pieceNo: "SRV-07",
-      provenance: "Georgian Scroll Handle • 925 Assay"
-    },
-    { 
-      id: 120, 
-      name: "Salver Serving Platter", 
-      original: 88000, 
-      sale: 44000, 
-      images: ["/images/cat_serveware.jpg", "/images/silver_hallmark.jpg", "/images/cat_decor.jpg"],
-      pieceNo: "SRV-08",
-      provenance: "Piecrust Border • Cast Claw Feet"
-    },
-  ];
-
-  // 4. Personal and Desk Accessories
-  const accessoriesProducts = [
-    { 
-      id: 7, 
-      name: "Engine-Turned Cigarette Case", 
-      original: 42000, 
-      sale: 21000, 
-      images: ["/images/cat_accessories.jpg", "/images/hero_silver.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "ACC-01",
-      provenance: "Barleycorn Engraved Pattern"
-    },
-    { 
-      id: 8, 
-      name: "Sterling Silver Flask", 
-      original: 52000, 
-      sale: 26000, 
-      images: ["/images/cat_accessories.jpg", "/images/cat_decor.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "ACC-02",
-      provenance: "Curved Hip Fitting • Bayonet Cap"
-    },
-    { 
-      id: 107, 
-      name: "Silver Cufflinks Box", 
-      original: 38000, 
-      sale: 19000, 
-      images: ["/images/cat_accessories.jpg", "/images/hero_silver.jpg", "/images/cat_serveware.jpg"],
-      pieceNo: "ACC-03",
-      provenance: "Cedar Lined Sterling Casing"
-    },
-    { 
-      id: 108, 
-      name: "Antique Letter Opener", 
-      original: 18000, 
-      sale: 9000, 
-      images: ["/images/cat_accessories.jpg", "/images/silver_hallmark.jpg", "/images/cat_divinity.jpg"],
-      pieceNo: "ACC-04",
-      provenance: "Hallmarked Blade Standard"
-    },
-    { 
-      id: 121, 
-      name: "Silver Desk Blotter & Inkwell", 
-      original: 62000, 
-      sale: 31000, 
-      images: ["/images/cat_accessories.jpg", "/images/hero_silver.jpg", "/images/cat_decor.jpg"],
-      pieceNo: "ACC-05",
-      provenance: "Hinged Cap • Cut Crystal & 925"
-    },
-    { 
-      id: 122, 
-      name: "Engraved Bookmark & Clip", 
-      original: 14000, 
-      sale: 7000, 
-      images: ["/images/cat_accessories.jpg", "/images/silver_hallmark.jpg", "/images/cat_serveware.jpg"],
-      pieceNo: "ACC-06",
-      provenance: "Hand-Engraved Monogram Standard"
-    },
-    { 
-      id: 123, 
-      name: "Sterling Silver Money Clip", 
-      original: 16000, 
-      sale: 8000, 
-      images: ["/images/cat_accessories.jpg", "/images/hero_silver.jpg", "/images/cat_divinity.jpg"],
-      pieceNo: "ACC-07",
-      provenance: "Spring-Tensioned Sterling Chasing"
-    },
-    { 
-      id: 124, 
-      name: "Antique Card Holder Case", 
-      original: 36000, 
-      sale: 18000, 
-      images: ["/images/cat_accessories.jpg", "/images/cat_decor.jpg", "/images/silver_hallmark.jpg"],
-      pieceNo: "ACC-08",
-      provenance: "Push-Release Clasp • Striped Guilloche"
-    },
-  ];
-
-  // Product Card with FACET 3-Angle View Dissolve & Micro-Zoom
-  const ProductCard = ({ product }: { product: any }) => {
-    const [activeImgIndex, setActiveImgIndex] = useState(0);
-    const [isTransitioning, setIsTransitioning] = useState(false);
-    const percentOff = Math.round((1 - product.sale / product.original) * 100);
-
-    const switchView = (idx: number) => {
-      if (idx === activeImgIndex || isTransitioning) return;
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setActiveImgIndex(idx);
-        setIsTransitioning(false);
-      }, 160);
-    };
-
-    return (
-      <div 
-        onMouseEnter={() => setHoveredCardId(product.id)}
-        onMouseLeave={() => setHoveredCardId(null)}
-        className="group flex flex-col text-left transition-all duration-300"
-      >
-        {/* Clean Minimal Product Image Container */}
-        <div className="relative aspect-[4/5] mb-4 overflow-hidden bg-[#ffffff] p-4 flex items-center justify-center transition-all duration-500 group-hover:scale-[1.02]">
-          
-          {/* Primary Image with 3-Angle Dissolve */}
-          <div className="relative w-full h-full">
-            <Image 
-              src={product.images[activeImgIndex]} 
-              alt={product.name} 
-              fill 
-              className={`object-contain transition-all duration-700 ease-out ${
-                isTransitioning ? "opacity-30 blur-[1px]" : "opacity-100 blur-0"
-              }`}
-            />
-          </div>
-
-          {/* 3-View Angle Selector Bars */}
-          <div className="absolute bottom-2 left-0 w-full flex justify-center items-center gap-1.5 z-20">
-            {product.images.map((_: any, imgIdx: number) => (
-              <button
-                key={imgIdx}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  switchView(imgIdx);
-                }}
-                className={`transition-all duration-300 cursor-pointer ${
-                  activeImgIndex === imgIdx
-                    ? "w-5 h-[2px] bg-[#141312]"
-                    : "w-2 h-[2px] bg-[#141312]/20 hover:bg-[#141312]/60"
-                }`}
-                aria-label={`View perspective ${imgIdx + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Product Title in Bold Uppercase / Headline font like reference image */}
-        <h3 className="font-sans font-bold text-xs sm:text-sm text-[#141312] uppercase tracking-[0.06em] mb-1.5 line-clamp-1">
-          {product.name}
-        </h3>
-
-        {/* Price Row: Rs. formatted on left, strike-through original on right */}
-        <div className="flex items-center gap-2 font-sans">
-          <span className="text-[#141312] font-bold text-xs sm:text-sm tracking-tight">
-            Rs. {product.sale.toLocaleString('en-IN')}.00
-          </span>
-          <span className="text-[#8c827a] line-through text-xs font-normal">
-            Rs. {product.original.toLocaleString('en-IN')}.00
-          </span>
-        </div>
-      </div>
-    );
-  };
-
-  // Filtered products list for current category
-  const displayedProducts = activeCategory === "all"
-    ? [...divinityProducts, ...decorProducts, ...servewareProducts, ...accessoriesProducts]
-    : activeCategory === "divinity"
-    ? divinityProducts
-    : activeCategory === "decor"
-    ? decorProducts
-    : activeCategory === "serveware"
-    ? servewareProducts
-    : accessoriesProducts;
-
-  // Tiffany & Co. scroller handlers
-  const handleScroll = () => {
-    if (!collectionScrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = collectionScrollRef.current;
-    const maxScroll = scrollWidth - clientWidth;
-    if (maxScroll <= 0) {
-      setScrollProgress(0);
-      setCanScrollLeft(false);
-      setCanScrollRight(false);
-      return;
-    }
-    const progress = Math.max(0, Math.min(1, scrollLeft / maxScroll));
-    setScrollProgress(progress);
-    setCanScrollLeft(scrollLeft > 5);
-    setCanScrollRight(scrollLeft < maxScroll - 5);
+  const updateScrollState = () => {
+    const el = collectionScrollRef.current;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    setVisibleRatio(el.scrollWidth > 0 ? Math.min(1, el.clientWidth / el.scrollWidth) : 1);
+    setScrollProgress(maxScroll > 0 ? Math.max(0, Math.min(1, el.scrollLeft / maxScroll)) : 0);
+    setCanScrollLeft(el.scrollLeft > 5);
+    setCanScrollRight(el.scrollLeft < maxScroll - 5);
   };
 
   const scrollCollection = (direction: "left" | "right") => {
-    if (!collectionScrollRef.current) return;
-    const scrollAmount = 360;
-    collectionScrollRef.current.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth"
-    });
+    const el = collectionScrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: (direction === "left" ? -1 : 1) * el.clientWidth * 0.8, behavior: "smooth" });
   };
 
-  // Re-check scroll state whenever activeCategory changes or window resizes
+  const selectCategory = (id: CategoryId) => {
+    setActiveCategory(id);
+    collectionScrollRef.current?.scrollTo({ left: 0, behavior: "instant" });
+  };
+
+  // Re-measure after the product list changes and on resize
   useEffect(() => {
-    const checkScrollState = () => {
-      if (!collectionScrollRef.current) return;
-      const { scrollLeft, scrollWidth, clientWidth } = collectionScrollRef.current;
-      const maxScroll = scrollWidth - clientWidth;
-      if (maxScroll > 0) {
-        setCanScrollRight(scrollLeft < maxScroll - 5);
-      } else {
-        setCanScrollRight(false);
-      }
-      setCanScrollLeft(scrollLeft > 5);
-    };
-
-    if (collectionScrollRef.current) {
-      collectionScrollRef.current.scrollTo({ left: 0, behavior: "instant" });
-    }
-    setScrollProgress(0);
-    setCanScrollLeft(false);
-
-    // Measure right after DOM update
-    const timer = setTimeout(checkScrollState, 50);
-    window.addEventListener("resize", checkScrollState);
+    const frame = requestAnimationFrame(updateScrollState);
+    window.addEventListener("resize", updateScrollState);
     return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", checkScrollState);
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updateScrollState);
     };
   }, [activeCategory]);
 
   return (
-    <main className="min-h-screen bg-[#fbfbf9] text-[#141312]">
-      
-      {/* 1. Announcement Bar */}
+    <main className="min-h-screen bg-sand-base text-ink">
+
+      {/* Announcement bar */}
       {showAnnouncement && (
-        <aside aria-label="Announcement" className="fixed top-0 left-0 w-full bg-[#141312] text-[#fbfbf9] z-50 px-6 py-2.5 flex items-center justify-center text-[11px] font-sans tracking-[0.2em] uppercase">
-          <span>The Vault Release: Up to 50% Off. Strictly Limited Pieces. Ends October 31.</span>
-          <button 
-            onClick={() => setShowAnnouncement(false)} 
-            className="absolute right-6 text-[#8c827a] hover:text-[#fbfbf9] transition-colors cursor-pointer"
+        <aside
+          aria-label="Announcement"
+          className="fixed top-0 inset-x-0 h-9 z-50 bg-ink text-sand-base flex items-center justify-center px-12 text-xs tracking-[0.08em]"
+        >
+          <p className="truncate">
+            The Vault Release: up to 50% off, until 31 October
+          </p>
+          <button
+            onClick={() => setShowAnnouncement(false)}
+            className="absolute right-3 w-8 h-8 flex items-center justify-center text-ink-muted hover:text-sand-base transition-colors cursor-pointer"
             aria-label="Dismiss announcement"
           >
-            ✕
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 5l14 14M19 5L5 19" />
+            </svg>
           </button>
         </aside>
       )}
 
-      {/* 2. Elevated Translucent Navigation */}
-      <header className={`fixed w-full z-40 transition-all duration-300 bg-[#fbfbf9]/90 backdrop-blur-md border-b border-[#e8e4dc] ${showAnnouncement ? 'top-[37px]' : 'top-0'}`}>
-        <div className="flex justify-between items-center px-6 sm:px-12 py-5 max-w-[1440px] mx-auto">
-          {/* Left: Brand Name */}
-          <a href="#" className="font-serif text-2xl sm:text-3xl tracking-[0.2em] uppercase text-[#141312]">
+      {/* Navigation */}
+      <header
+        className={`fixed inset-x-0 z-40 bg-sand-base/90 backdrop-blur-md border-b border-sand-border transition-[top] duration-300 ${
+          showAnnouncement ? "top-9" : "top-0"
+        }`}
+      >
+        <div className="container-site flex items-center justify-between h-16 lg:h-20">
+          <a href="#" className="font-serif text-xl sm:text-2xl font-medium tracking-[0.16em] uppercase text-ink">
             Fraser &amp; Hawes
           </a>
 
-          {/* Right / Center: Navigation Links */}
-          <nav className="hidden md:flex gap-10 items-center text-xs font-sans uppercase tracking-[0.2em] text-[#57534e]">
-            <a href="#collections" className="hover:text-[#141312] transition-colors">The Vault</a>
-            <a href="#story" className="hover:text-[#141312] transition-colors">Our Story</a>
-            <a href="#heritage" className="hover:text-[#141312] transition-colors">Heritage</a>
-            <a href="#craft" className="hover:text-[#141312] transition-colors">Craft &amp; Authenticity</a>
-            <a href="#faq" className="hover:text-[#141312] transition-colors">Archive FAQ</a>
+          <nav className="hidden md:flex items-center gap-8 text-sm text-ink-secondary">
+            <a href="#collections" className="hover:text-ink transition-colors">The Vault</a>
+            <a href="#story" className="hover:text-ink transition-colors">Our story</a>
+            <a href="#craft" className="hover:text-ink transition-colors">Craft</a>
+            <a href="#gifting" className="hover:text-ink transition-colors">Gifting</a>
+            <a href="#faq" className="hover:text-ink transition-colors">FAQ</a>
           </nav>
+
+          <a href="#collections" className="md:hidden text-sm text-ink underline underline-offset-4">
+            Shop
+          </a>
         </div>
       </header>
 
-      {/* 3. Hero Section (Exact Tiffany & Co. Layout: Left Editorial Panel + Right Large Masterpiece Visual) */}
-      <section className="pt-28 sm:pt-36 pb-14 sm:pb-20 bg-[#ffffff] border-b border-[#e8e4dc]">
-        <div className="w-full pl-6 sm:pl-12 lg:pl-20 pr-0">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-            
-            {/* Left Column: Tiffany Style Editorial Text & Underlined CTA */}
-            <div className="lg:col-span-4 pr-6 sm:pr-10 lg:pr-6 flex flex-col justify-center text-center lg:text-left items-center lg:items-start py-8 lg:py-16">
-              <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[#141312] leading-[1.1] tracking-tight mb-5 font-normal">
-                Silver made at yesterday&apos;s price. Yours today.
-              </h1>
+      {/* Hero */}
+      <section className="bg-white pt-[6.25rem] lg:pt-[7.25rem]">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
 
-              <p className="font-sans text-sm sm:text-base text-[#141312]/80 max-w-md leading-relaxed mb-8 font-normal">
-                Fraser &amp; Hawes crafted these pieces years ago, before silver&apos;s rise. We&apos;re passing that advantage on, with up to 50% off.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <a 
-                  href="#collections" 
-                  className="group relative inline-block text-[11px] sm:text-xs font-sans font-medium uppercase tracking-[0.25em] text-[#141312] pb-1 border-b border-[#141312] hover:opacity-70 transition-opacity"
-                >
-                  SHOP THE COLLECTION
-                </a>
-                <a 
-                  href="#story" 
-                  className="text-[11px] sm:text-xs font-sans uppercase tracking-[0.25em] text-[#8c827a] hover:text-[#141312] transition-colors"
-                >
-                  HOW IT WORKS
-                </a>
-              </div>
+          <div className="order-2 lg:order-1 flex flex-col justify-center px-5 sm:px-8 lg:pr-16 lg:pl-[max(3rem,calc((100vw-1320px)/2+3rem))] py-14 lg:py-20">
+            <h1 className="font-serif text-5xl sm:text-6xl xl:text-[4.5rem] leading-[1.02] text-ink mb-6">
+              Silver made at yesterday&apos;s price. Yours today.
+            </h1>
+            <p className="text-base sm:text-[17px] leading-[1.7] text-ink-secondary max-w-md mb-10">
+              We made these pieces years ago, before silver&apos;s price rise. Now we&apos;re passing that on, with up to 50% off.
+            </p>
+            <div className="flex items-center gap-8">
+              <a href="#collections" className="link-line">Shop the collection</a>
+              <a href="#story" className="text-[15px] text-ink-muted hover:text-ink transition-colors">
+                How it works
+              </a>
             </div>
-
-            {/* Right Column: Hero Masterpiece Visual */}
-            <div className="lg:col-span-8 w-full">
-              <div className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] w-full overflow-hidden bg-[#f4f2ec] border border-[#e8e4dc] group">
-                <Image 
-                  src="/images/hero_silver.jpg" 
-                  alt="Fraser &amp; Hawes Sterling Silver Masterpiece" 
-                  fill 
-                  priority 
-                  className="object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-103" 
-                />
-              </div>
-            </div>
-
           </div>
+
+          <div className="order-1 lg:order-2 relative aspect-[4/3] lg:aspect-auto lg:min-h-[min(calc(100svh-7.25rem),52rem)] bg-sand-surface">
+            <GiftingVideo
+              src="https://media.tiffany.com/is/content/tco/2024_ICONS_BC_BG_VIDEO3_Desktop_SFCC-1"
+              poster="/images/hero_silver.jpg"
+              label="Silver pieces from the collection"
+            />
+          </div>
+
         </div>
       </section>
 
-      {/* 3. How These Pieces Came to Be Here (The Story) */}
+      {/* How these pieces came to be here */}
       <StoryArchive />
 
-      {/* 4. The Vault Collection (Segmented Tab Bar + Dynamic Category Image Replacement) */}
-      <section id="collections" className="py-20 sm:py-28 px-4 sm:px-8 lg:px-12 bg-[#ffffff]">
-        <div className="max-w-[1400px] mx-auto">
-          
-          {/* Section Header */}
-          <div className="text-center mb-10">
-            <h2 className="text-3xl sm:text-5xl font-serif text-[#141312] tracking-tight font-normal">
-              The Vault Collection
-            </h2>
-          </div>
+      {/* The Vault Collection */}
+      <section id="collections" className="section-y bg-white">
+        <div className="container-site">
 
-          {/* Luxury Minimalist Category Filter Bar */}
-          <div className="w-full flex justify-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center p-1.5 bg-[#f4f2ec] border border-[#e8e4dc] rounded-full overflow-x-auto max-w-full hide-scrollbar shadow-[inset_0_1px_3px_rgba(20,19,18,0.04)]">
-              {[
-                { id: "all", label: "ALL" },
-                { id: "divinity", label: "DIVINITY" },
-                { id: "decor", label: "ART & DECOR" },
-                { id: "serveware", label: "SERVEWARE" },
-                { id: "accessories", label: "ACCESSORIES" },
-              ].map((tab) => {
-                const isActive = activeCategory === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveCategory(tab.id)}
-                    className={`px-5 sm:px-8 py-2.5 text-xs font-sans tracking-[0.18em] uppercase transition-all duration-300 rounded-full cursor-pointer whitespace-nowrap ${
-                      isActive 
-                        ? "bg-[#141312] text-[#fbfbf9] font-medium shadow-sm" 
-                        : "text-[#57534e] hover:text-[#141312] hover:bg-[#eae6dc]"
+          <h2 className="font-serif text-4xl sm:text-5xl leading-[1.05] text-ink mb-10 lg:mb-14">The Vault Collection</h2>
+
+          {/* Category tabs: a round thumbnail of a representative piece above each name */}
+          <div role="tablist" aria-label="Collection categories" className="flex sm:justify-center gap-6 sm:gap-10 lg:gap-14 overflow-x-auto hide-scrollbar -mx-2 px-2 pt-2 pb-2 mb-8 lg:mb-12">
+            {categories.map((tab) => {
+              const isActive = activeCategory === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => selectCategory(tab.id)}
+                  className="group/tab shrink-0 flex flex-col items-center gap-3 cursor-pointer"
+                >
+                  <span
+                    className={`relative block w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-sand-surface ring-1 ring-offset-4 ring-offset-white transition-all duration-300 ${
+                      isActive ? "ring-ink" : "ring-transparent opacity-75 group-hover/tab:opacity-100 group-hover/tab:ring-ink/20"
+                    }`}
+                  >
+                    <Image src={tab.thumb} alt="" fill unoptimized loading="eager" className="object-cover" />
+                  </span>
+                  <span
+                    className={`text-sm whitespace-nowrap transition-colors ${
+                      isActive ? "text-ink font-medium" : "text-ink-muted group-hover/tab:text-ink"
                     }`}
                   >
                     {tab.label}
-                  </button>
-                );
-              })}
-            </div>
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Products Horizontal Slider Container */}
-          <div className="relative">
-            <div 
-              ref={collectionScrollRef}
-              onScroll={handleScroll}
-              className="flex gap-6 sm:gap-8 overflow-x-auto scroll-smooth no-scrollbar hide-scrollbar pb-2 pt-2 select-none"
-              style={{ 
-                scrollSnapType: "x mandatory",
-                scrollbarWidth: "none",
-                msOverflowStyle: "none"
+          {/* Product scroller */}
+          <div
+            ref={collectionScrollRef}
+            onScroll={updateScrollState}
+            className="flex gap-5 sm:gap-8 overflow-x-auto snap-x snap-mandatory hide-scrollbar"
+          >
+            {displayedProducts.map((product) => (
+              <div
+                key={product.id}
+                className="snap-start shrink-0 w-[72vw] sm:w-[300px] lg:w-[calc((100%-6rem)/3.4)]"
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+
+          {/* Scroller controls; the bar is sized to the visible share of the row */}
+          <div className="flex items-center gap-6 mt-10">
+            <div
+              className="flex-1 h-px bg-sand-border relative cursor-pointer"
+              onClick={(e) => {
+                const el = collectionScrollRef.current;
+                if (!el) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                el.scrollTo({ left: ratio * (el.scrollWidth - el.clientWidth), behavior: "smooth" });
               }}
             >
-              {displayedProducts.map((product) => (
-                <div 
-                  key={product.id} 
-                  className="min-w-[260px] sm:min-w-[300px] md:min-w-[320px] max-w-[340px] flex-shrink-0"
-                  style={{ scrollSnapAlign: "start" }}
-                >
-                  <ProductCard product={product} />
-                </div>
-              ))}
+              <div
+                className="absolute -top-px left-0 h-[3px] bg-ink transition-[width,transform] duration-150 ease-out"
+                style={{
+                  width: `${visibleRatio * 100}%`,
+                  transform: `translateX(${(scrollProgress * (1 - visibleRatio) / visibleRatio) * 100}%)`,
+                }}
+              />
             </div>
-
-            {/* Tiffany & Co. Style Scroller Component (< ─── >) */}
-            <div className="flex items-center justify-center gap-6 sm:gap-10 mt-8 sm:mt-12">
-              {/* Left Arrow Button */}
+            <div className="flex gap-3">
               <button
                 onClick={() => scrollCollection("left")}
                 disabled={!canScrollLeft}
                 aria-label="Scroll left"
-                className={`p-2 transition-opacity duration-200 cursor-pointer ${
-                  canScrollLeft ? "opacity-100 hover:opacity-60 text-[#141312]" : "opacity-25 cursor-not-allowed text-[#141312]"
-                }`}
+                className="w-11 h-11 rounded-full border border-ink/20 flex items-center justify-center text-ink hover:border-ink transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-ink/20"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="15 18 9 12 15 6"></polyline>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
-
-              {/* Progress Track Bar */}
-              <div 
-                className="w-48 sm:w-80 md:w-96 h-[2px] bg-[#e5e5e5] relative cursor-pointer overflow-hidden rounded-full"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const clickX = e.clientX - rect.left;
-                  const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-                  if (collectionScrollRef.current) {
-                    const maxScroll = collectionScrollRef.current.scrollWidth - collectionScrollRef.current.clientWidth;
-                    collectionScrollRef.current.scrollTo({
-                      left: ratio * maxScroll,
-                      behavior: "smooth"
-                    });
-                  }
-                }}
-              >
-                {/* Active Indicator Bar */}
-                <div 
-                  className="h-full bg-[#141312] transition-all duration-150 ease-out"
-                  style={{
-                    width: "25%",
-                    transform: `translateX(${scrollProgress * 300}%)`,
-                  }}
-                />
-              </div>
-
-              {/* Right Arrow Button */}
               <button
                 onClick={() => scrollCollection("right")}
                 disabled={!canScrollRight}
                 aria-label="Scroll right"
-                className={`p-2 transition-opacity duration-200 cursor-pointer ${
-                  canScrollRight ? "opacity-100 hover:opacity-60 text-[#141312]" : "opacity-25 cursor-not-allowed text-[#141312]"
-                }`}
+                className="w-11 h-11 rounded-full border border-ink/20 flex items-center justify-center text-ink hover:border-ink transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-ink/20"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>
             </div>
@@ -673,103 +375,56 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5. Heritage Strip ("A legacy of Art-in-silver with over 150 years of legacy") */}
+      {/* Heritage */}
       <div id="heritage">
         <HeritageArchive />
       </div>
 
-      {/* 6. Craft and Authenticity (Hallmark close-up, sterling standard, hand-finishing, certificate, presentation box) */}
-      <section id="craft" className="py-24 sm:py-28 md:py-32 px-6 sm:px-10 lg:px-16 bg-[#f4f2ec] border-t border-[#e8e4dc]">
-        <div className="max-w-[1400px] mx-auto">
-          
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl sm:text-6xl text-[#141312] tracking-tight mb-4">
+      {/* Craft and authenticity */}
+      <section id="craft" className="section-y bg-white">
+        <div className="container-site">
+
+          <div className="text-center max-w-2xl mx-auto mb-10 lg:mb-14">
+            <h2 className="font-serif text-4xl sm:text-5xl leading-[1.05] text-ink mb-5">
               Craft and Authenticity
             </h2>
-            <p className="font-sans text-xs sm:text-sm text-[#57534e] max-w-xl mx-auto leading-relaxed">
+            <p className="text-base leading-[1.7] text-ink-secondary">
               Every piece in the Vault Release adheres to our highest standards of master silversmithing. A big discount reflects historical silver valuation, never lower craftsmanship.
             </p>
           </div>
 
-          {/* Staggered Focus-Isolated Exhibition Pedestals (5 Pillars with Hover Artifact Image Reveal) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            {[
-              {
-                title: "Hallmark Close-Up",
-                subtitle: "British Assay Stamp",
-                desc: "Independently struck assay hallmarks visible under magnification, documenting date, foundry mark, and town standard.",
-                tag: "Verified Mark",
-                image: "/images/silver_hallmark.jpg",
-                alt: "British Assay Hallmark on Sterling Silver"
-              },
-              {
-                title: "Sterling Standard",
-                subtitle: "92.5% Pure Silver",
-                desc: "Guaranteed solid sterling bullion throughout. Absolutely no electroplating, hollow flashing, or base-metal core.",
-                tag: "925 Assay Pure",
-                image: "/images/cat_accessories.jpg",
-                alt: "925 Solid Sterling Standard"
-              },
-              {
-                title: "Hand-Finishing",
-                subtitle: "Master Artisan Chasing",
-                desc: "Individually repoussé-hammered and hand-burnished by silversmiths with decades of lineage at traditional benches.",
-                tag: "Artisan Finished",
-                image: "/images/heritage_workshop.jpg",
-                alt: "Artisan Hand Chasing and Finishing"
-              },
-              {
-                title: "Certificate of Authenticity",
-                subtitle: "Archival Registrar Folio",
-                desc: "Each piece is accompanied by an embossed document of authenticity signed by our head registrar detailing catalogued provenance.",
-                tag: "Serialized Registry",
-                image: "/images/cat_decor.jpg",
-                alt: "Certificate of Authenticity and Provenance"
-              },
-              {
-                title: "The Presentation Box",
-                subtitle: "Velvet & Cedar Casing",
-                desc: "Delivered inside our signature velvet-lined heirloom presentation case with tarnish-inhibiting archival flannel wrap.",
-                tag: "Heirloom Casing",
-                image: "/images/cat_serveware.jpg",
-                alt: "Heirloom Presentation Box and Casing"
-              }
-            ].map((pillar, idx) => (
-              <div 
-                key={idx}
-                className="group relative p-8 border border-[#e8e4dc] bg-[#fbfbf9] flex flex-col justify-between overflow-hidden transition-all duration-500 hover:border-[#141312] hover:-translate-y-1.5 hover:shadow-xl min-h-[340px] cursor-pointer"
+          {/* Five pillars, each revealing its photograph on hover */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-5">
+            {craftPillars.map((pillar) => (
+              <div
+                key={pillar.title}
+                className="group relative p-6 lg:p-7 border border-sand-border bg-sand-base flex flex-col justify-between overflow-hidden transition-all duration-500 hover:border-ink hover:-translate-y-1.5 hover:shadow-xl min-h-[340px] cursor-pointer"
               >
-                {/* Background Artifact Image on Hover */}
-                <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                {/* Photograph shown on hover */}
+                <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                   <Image
                     src={pillar.image}
                     alt={pillar.alt}
                     fill
-                    className="object-cover scale-105 group-hover:scale-100 transition-transform duration-1000 ease-out"
+                    sizes="(min-width: 1024px) 20vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover scale-105 group-hover:scale-100 transition-transform duration-700 ease-out"
                   />
-                  {/* Luxury editorial gradient overlay ensuring high text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#141312]/95 via-[#141312]/75 to-[#141312]/40" />
                 </div>
 
-                {/* Card Header & Body */}
-                <div className="relative z-10">
-                  <h4 className="text-xl sm:text-2xl font-serif text-[#141312] group-hover:text-[#fbfbf9] mb-2 leading-snug transition-colors duration-300">
+                <div className="relative z-10 transition-opacity duration-300 group-hover:opacity-0 pointer-events-none">
+                  <h3 className="font-serif text-2xl leading-tight text-ink mb-2">
                     {pillar.title}
-                  </h4>
-                  <p className="text-[#8c827a] group-hover:text-[#c5a880] font-serif italic text-sm mb-4 transition-colors duration-300">
+                  </h3>
+                  <p className="font-serif italic text-base text-ink-muted mb-4">
                     {pillar.subtitle}
                   </p>
-                  <p className="text-xs text-[#57534e] group-hover:text-[#e8e4dc] leading-relaxed transition-colors duration-300">
+                  <p className="text-sm leading-relaxed text-ink-secondary">
                     {pillar.desc}
                   </p>
                 </div>
 
-                {/* Card Footer Tag */}
-                <div className="relative z-10 mt-8 pt-4 border-t border-[#e8e4dc] group-hover:border-[#fbfbf9]/30 text-[10px] font-sans uppercase tracking-[0.2em] text-[#141312] group-hover:text-[#c5a880] transition-colors duration-300 flex items-center justify-between">
-                  <span>{pillar.tag}</span>
-                  <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0">
-                    &rarr;
-                  </span>
+                <div className="relative z-10 mt-8 pt-4 border-t border-sand-border text-[11px] uppercase tracking-[0.16em] text-ink transition-opacity duration-300 group-hover:opacity-0 pointer-events-none">
+                  {pillar.tag}
                 </div>
               </div>
             ))}
@@ -778,92 +433,85 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 7. Bespoke Gifting */}
-      <section id="gifting" className="py-24 sm:py-28 md:py-32 px-6 sm:px-10 lg:px-16 text-center bg-[#fbfbf9] border-t border-[#e8e4dc]">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="font-serif text-3xl sm:text-5xl mb-6 leading-tight text-[#141312]">
-            Weddings, anniversaries, corporate gifts, christenings.
-          </h2>
-          <p className="text-[#57534e] font-serif italic text-lg sm:text-xl mb-10 max-w-xl mx-auto">
-            Add our signature hand-embossed wax seal, silk ribbon gift-wrap and calligraphy note.
-          </p>
-          <button className="bg-[#141312] text-[#fbfbf9] px-10 py-4 text-xs font-sans font-medium tracking-[0.25em] uppercase hover:bg-[#33312e] transition-colors cursor-pointer">
-            Request Gift-Wrap Service
-          </button>
-        </div>
+      {/* Gifting: alternating image and text rows */}
+      <section id="gifting" className="bg-white border-t border-sand-border">
+        {giftingRows.map((row, i) => {
+          const imageFirst = i % 2 === 1;
+          return (
+            <div key={row.title} className="grid grid-cols-1 lg:grid-cols-2">
+
+              <div
+                className={`flex flex-col justify-center px-5 sm:px-8 lg:px-[8vw] py-14 sm:py-20 lg:py-24 order-2 ${
+                  imageFirst ? "lg:order-2" : "lg:order-1"
+                }`}
+              >
+                <div className="max-w-[500px]">
+                  <h2 className="font-serif text-4xl sm:text-[2.75rem] leading-[1.08] text-ink mb-6">
+                    {row.title}
+                  </h2>
+                  <p className="text-base leading-[1.7] text-ink-secondary mb-10">
+                    {row.body}
+                  </p>
+                  <div className="flex flex-col items-start gap-3">
+                    {row.links.map((link) => (
+                      <a key={link.label} href={link.href} className="link-line">
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className={`relative aspect-square order-1 bg-sand-surface ${
+                  imageFirst ? "lg:order-1" : "lg:order-2"
+                }`}
+              >
+                {row.video ? (
+                  <GiftingVideo src={row.video} poster={row.image} label={row.alt} />
+                ) : (
+                  <Image
+                    src={row.image}
+                    alt={row.alt}
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    className={`object-cover ${row.imagePosition}`}
+                  />
+                )}
+              </div>
+
+            </div>
+          );
+        })}
       </section>
 
-      {/* 8. The Archive FAQ (Interactive Luxury Folio Accordion) */}
-      <section id="faq" className="py-24 sm:py-28 md:py-32 px-6 sm:px-10 lg:px-16 bg-[#f4f2ec] border-t border-[#e8e4dc]">
-        <div className="max-w-4xl mx-auto">
-          
-          {/* Original Section Header */}
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl sm:text-6xl text-[#141312] mb-4 tracking-tight leading-tight">
-              The Archive FAQ
+      {/* FAQ */}
+      <section id="faq" className="section-y bg-sand-surface">
+        <div className="container-site grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+
+          <div className="lg:col-span-4 lg:sticky lg:top-36 lg:self-start">
+            <h2 className="font-serif text-4xl sm:text-5xl leading-[1.05] text-ink mb-6">
+              FAQ
             </h2>
-            <div className="w-16 h-[1px] bg-[#141312]/20 mx-auto"></div>
+            <p className="text-base leading-[1.7] text-ink-secondary max-w-xs">
+              Something we haven&apos;t covered? Write to us and a member of the workshop will reply.
+            </p>
+            <a href="#" className="link-line inline-block mt-6">Contact us</a>
           </div>
 
-          {/* Interactive Luxury Accordion Register (FACET style with + / × toggle) */}
-          <div className="border-t border-[#e8e4dc] divide-y divide-[#e8e4dc]">
-            {[
-              {
-                num: "I",
-                q: "Is it genuine sterling silver?",
-                a: "Yes, absolutely. Every piece is hallmarked 925 sterling silver according to stringent British assay standards."
-              },
-              {
-                num: "II",
-                q: "Why the discount?",
-                a: "These pieces were crafted years ago when the raw cost of silver was much lower, preserved securely in our vault. We pass that historical pricing advantage directly to our collectors."
-              },
-              {
-                num: "III",
-                q: "Returns and warranty?",
-                a: "Our standard lifetime silversmith warranty applies. You may return any item in its original presentation state within 30 days."
-              },
-              {
-                num: "IV",
-                q: "Shipping and insurance?",
-                a: "All vault shipments are fully insured against loss in transit and require a direct signature upon delivery."
-              },
-              {
-                num: "V",
-                q: "Can I gift-wrap?",
-                a: "Yes. You can select our signature premium archival gift wrapping, wax-seal stamping, and handwritten message during checkout."
-              },
-              {
-                num: "VI",
-                q: "Are there more pieces coming?",
-                a: "No. The Vault Release is strictly limited to the historical inventory currently catalogued. Once claimed, these editions will not be restocked at this price."
-              }
-            ].map((item, idx) => (
-              <details 
-                key={idx}
-                className="group py-6 sm:py-8 cursor-pointer transition-colors duration-300"
-              >
-                <summary className="list-none flex items-baseline justify-between gap-6 select-none focus:outline-hidden">
-                  <div className="flex items-baseline gap-4 sm:gap-6">
-                    <span className="font-serif text-xl sm:text-2xl text-[#8c827a] group-open:text-[#141312] transition-colors min-w-[28px]">
-                      {item.num}.
-                    </span>
-                    <h3 className="font-serif text-xl sm:text-2xl text-[#141312] tracking-tight group-hover:opacity-75 transition-opacity">
-                      {item.q}
-                    </h3>
-                  </div>
-
-                  {/* Minimalist Rotator Toggle (+ rotates to × on open) */}
-                  <span className="w-8 h-8 rounded-full border border-[#e8e4dc] flex items-center justify-center text-[#141312] text-sm shrink-0 transition-transform duration-500 ease-out group-open:rotate-45 group-hover:border-[#141312] bg-[#fbfbf9]">
-                    +
+          <div className="lg:col-span-7 lg:col-start-6 border-t border-ink/15">
+            {faqs.map((item) => (
+              <details key={item.q} className="group border-b border-ink/15">
+                <summary className="list-none [&::-webkit-details-marker]:hidden flex items-center justify-between gap-6 py-6 cursor-pointer select-none">
+                  <h3 className="font-serif text-2xl leading-snug text-ink">{item.q}</h3>
+                  <span className="relative w-4 h-4 shrink-0 text-ink" aria-hidden>
+                    <span className="absolute top-1/2 left-0 w-4 h-px bg-current" />
+                    <span className="absolute left-1/2 top-0 h-4 w-px bg-current transition-transform duration-300 group-open:scale-y-0" />
                   </span>
                 </summary>
-
-                <div className="pt-4 sm:pt-6 pl-10 sm:pl-14 pr-4 sm:pr-12">
-                  <p className="font-sans text-xs sm:text-sm text-[#57534e] leading-relaxed">
-                    {item.a}
-                  </p>
-                </div>
+                <p className="pb-7 pr-10 text-base leading-[1.7] text-ink-secondary max-w-2xl">
+                  {item.a}
+                </p>
               </details>
             ))}
           </div>
@@ -871,32 +519,50 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 9. Architectural Footer */}
-      <footer className="pt-24 pb-12 px-6 sm:px-10 lg:px-16 bg-[#141312] text-[#fbfbf9] text-center">
-        <div className="max-w-2xl mx-auto mb-16">
-          <span className="text-[11px] font-sans uppercase tracking-[0.3em] text-[#8c827a] block mb-4">
-            Final Notice
-          </span>
-          <div className="font-serif text-3xl sm:text-5xl text-[#fbfbf9] mb-8 leading-tight">
-            The vault will not remain open indefinitely.
+      {/* Footer */}
+      <footer className="bg-ink text-sand-base">
+        <div className="container-site pt-[3.2rem] sm:pt-16 lg:pt-[4.8rem] pb-10">
+
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 pb-14 sm:pb-16 lg:pb-20 border-b border-white/10">
+            <h2 className="font-serif text-4xl sm:text-5xl leading-[1.05] max-w-xl">
+              The vault won&apos;t stay open for long.
+            </h2>
+            <a
+              href="#collections"
+              className="self-start lg:self-auto inline-block bg-sand-base text-ink px-8 py-4 text-sm tracking-[0.04em] hover:bg-sand-border transition-colors"
+            >
+              Shop the collection
+            </a>
           </div>
-          <a 
-            href="#collections" 
-            className="inline-block bg-[#fbfbf9] text-[#141312] px-10 py-4 text-xs font-sans font-medium tracking-[0.25em] uppercase hover:bg-[#e8e4dc] transition-colors"
-          >
-            Acquire From The Vault
-          </a>
-        </div>
-        
-        <div className="flex flex-wrap justify-center gap-6 sm:gap-12 mb-16 border-t border-b border-[#2a2825] py-6 max-w-4xl mx-auto">
-          <a href="#" className="text-xs uppercase tracking-[0.2em] font-sans text-[#8c827a] hover:text-[#fbfbf9] transition-colors">Archival Provenance</a>
-          <a href="#" className="text-xs uppercase tracking-[0.2em] font-sans text-[#8c827a] hover:text-[#fbfbf9] transition-colors">Hallmark Registry</a>
-          <a href="#" className="text-xs uppercase tracking-[0.2em] font-sans text-[#8c827a] hover:text-[#fbfbf9] transition-colors">Collector Concierge</a>
-          <a href="#" className="text-xs uppercase tracking-[0.2em] font-sans text-[#8c827a] hover:text-[#fbfbf9] transition-colors">Private Commissions</a>
-        </div>
-        
-        <div className="text-[11px] uppercase tracking-[0.25em] font-sans text-[#66605a]">
-          &copy; {new Date().getFullYear()} Fraser &amp; Hawes Silversmiths. Tradition &amp; Integrity Since 1869.
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-10 py-12 lg:py-14">
+            <div className="col-span-2 sm:col-span-1">
+              <p className="font-serif text-xl font-medium tracking-[0.16em] uppercase mb-3">Fraser &amp; Hawes</p>
+              <p className="text-sm leading-relaxed text-white/50 max-w-[16rem]">
+                Silversmiths since 1869.
+              </p>
+            </div>
+            {[
+              { heading: "Shop", links: [["The Vault", "#collections"], ["Gifting", "#gifting"], ["Private commissions", "#"]] },
+              { heading: "About", links: [["Our story", "#story"], ["Craft", "#craft"], ["Hallmark registry", "#"]] },
+              { heading: "Help", links: [["FAQ", "#faq"], ["Shipping & returns", "#faq"], ["Contact us", "#"]] },
+            ].map((col) => (
+              <div key={col.heading}>
+                <p className="text-xs uppercase tracking-[0.14em] text-white/40 mb-4">{col.heading}</p>
+                <ul className="space-y-2.5">
+                  {col.links.map(([label, href]) => (
+                    <li key={label}>
+                      <a href={href} className="text-sm text-white/75 hover:text-white transition-colors">{label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-white/40">
+            &copy; {new Date().getFullYear()} Fraser &amp; Hawes Silversmiths
+          </p>
         </div>
       </footer>
 

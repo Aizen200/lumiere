@@ -1,27 +1,61 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Raleway:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Cinzel", "Cormorant Garamond", Georgia, serif;
-  --font-cormorant: "Cormorant Garamond", Georgia, serif;
-  --font-cinzel: "Cinzel", Georgia, serif;
-  --font-sans: "Raleway", -apple-system, sans-serif;
-  
+  --font-serif: var(--font-display), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-body), "Jost", -apple-system, sans-serif;
+
   --color-sand-base: #fbfbf9;
   --color-sand-surface: #f4f2ec;
   --color-sand-card: #ffffff;
   --color-sand-border: #e8e4dc;
-  --color-sand-border-subtle: #f0ece4;
   --color-ink: #141312;
   --color-ink-secondary: #57534e;
   --color-ink-muted: #8c827a;
   --color-accent-gold: #c5a880;
-  --color-accent-tiffany: #81d8d0;
-  --color-dark-noir: #121110;
+}
+
+/* One page width and one gutter for every section */
+@utility container-site {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (width >= 40rem) {
+    padding-inline: 2rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 3rem;
+  }
+}
+
+/* One vertical rhythm for every section */
+@utility section-y {
+  padding-block: 3.2rem;
+  @media (width >= 40rem) {
+    padding-block: 4.4rem;
+  }
+  @media (width >= 64rem) {
+    padding-block: 5.6rem;
+  }
+}
+
+/* Plain underlined text link, used for every CTA */
+@utility link-line {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: text-decoration-color 0.2s ease;
+  &:hover {
+    text-decoration-color: transparent;
+  }
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
 }
 
 body {
@@ -31,50 +65,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.font-serif {
-  font-family: var(--font-serif);
+h1,
+h2,
+h3 {
+  text-wrap: balance;
 }
 
-.font-cinzel {
-  font-family: var(--font-cinzel);
-}
-
-.font-cormorant {
-  font-family: var(--font-cormorant);
-}
-
-.font-sans {
-  font-family: var(--font-sans);
-}
-
-/* Subtle luxury image zoom */
-.image-zoom-container {
-  overflow: hidden;
-}
-
-.image-zoom-container img {
-  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
-}
-
-.image-zoom-container:hover img {
-  transform: scale(1.04);
-}
-
-/* Luxury Easing Curves */
-.ease-luxury {
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Subtle continuous ambient drift for heritage workshop */
+/* Slow drift on the workshop photograph */
 @keyframes ambientDrift {
-  0% {
+  0%,
+  100% {
     transform: scale(1) translateX(0);
   }
   50% {
     transform: scale(1.03) translateX(-0.8%);
-  }
-  100% {
-    transform: scale(1) translateX(0);
   }
 }
 
@@ -82,50 +86,7 @@ body {
   animation: ambientDrift 28s ease-in-out infinite;
 }
 
-/* Tiffany Editorial Film Motion */
-@keyframes cinematicPan {
-  0% {
-    transform: scale(1.02) translate(0%, 0%);
-  }
-  50% {
-    transform: scale(1.08) translate(-1.2%, -0.8%);
-  }
-  100% {
-    transform: scale(1.02) translate(0%, 0%);
-  }
-}
-
-.animate-cinematic-pan {
-  animation: cinematicPan 18s ease-in-out infinite alternate;
-}
-
-@keyframes silverGleam {
-  0%, 100% {
-    opacity: 0.15;
-    transform: translateX(-100%) rotate(25deg);
-  }
-  50% {
-    opacity: 0.45;
-    transform: translateX(120%) rotate(25deg);
-  }
-}
-
-.animate-silver-gleam {
-  animation: silverGleam 9s ease-in-out infinite;
-}
-
-
-/* Luxury 3D Book Ledger Effects (Warm Bone & Sand Heirloom Palette) */
-.perspective-book {
-  perspective: 1800px;
-}
-
-.book-shadow {
-  box-shadow: 
-    0 25px 50px -12px rgba(20, 19, 18, 0.08),
-    0 10px 25px -10px rgba(20, 19, 18, 0.05);
-}
-
+/* Book spine and page gutters */
 .book-spine-gradient {
   background: linear-gradient(
     to right,
@@ -138,153 +99,86 @@ body {
 }
 
 .book-inner-left-gutter {
-  background: linear-gradient(
-    to right,
-    rgba(20, 19, 18, 0) 0%,
-    rgba(20, 19, 18, 0.02) 65%,
-    rgba(20, 19, 18, 0.08) 92%,
-    rgba(20, 19, 18, 0.15) 100%
-  );
+  background: linear-gradient(to right, transparent 0%, rgba(20, 19, 18, 0.02) 65%, rgba(20, 19, 18, 0.08) 92%, rgba(20, 19, 18, 0.14) 100%);
 }
 
 .book-inner-right-gutter {
-  background: linear-gradient(
-    to left,
-    rgba(20, 19, 18, 0) 0%,
-    rgba(20, 19, 18, 0.02) 65%,
-    rgba(20, 19, 18, 0.08) 92%,
-    rgba(20, 19, 18, 0.15) 100%
-  );
+  background: linear-gradient(to left, transparent 0%, rgba(20, 19, 18, 0.02) 65%, rgba(20, 19, 18, 0.08) 92%, rgba(20, 19, 18, 0.14) 100%);
 }
 
-/* Natural Book Page Flip Animations */
+/*
+  Page turn. A page rotates away from the spine until it is edge-on (90deg),
+  the content swaps while it is invisible, then the facing page rotates in.
+  Durations must match FLIP_OUT_MS / FLIP_IN_MS in StoryArchive.tsx.
+  Only transform is animated so the browser can keep it on the GPU.
+*/
+.page-flip-curl-next,
+.page-flip-curl-prev,
+.page-flip-enter-next,
+.page-flip-enter-prev {
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
 .page-flip-curl-next {
-  animation: naturalPageTurnNext 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: left center;
-  will-change: transform, opacity, filter;
+  animation: pageOutNext 380ms cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
 }
 
 .page-flip-curl-prev {
-  animation: naturalPageTurnPrev 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: right center;
-  will-change: transform, opacity, filter;
+  animation: pageOutPrev 380ms cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
 }
 
 .page-flip-enter-next {
-  animation: naturalPageEnterNext 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  will-change: transform, opacity;
+  transform-origin: right center;
+  animation: pageInNext 520ms cubic-bezier(0.15, 0.65, 0.35, 1) forwards;
 }
 
 .page-flip-enter-prev {
-  animation: naturalPageEnterPrev 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  will-change: transform, opacity;
+  transform-origin: left center;
+  animation: pageInPrev 520ms cubic-bezier(0.15, 0.65, 0.35, 1) forwards;
 }
 
-@keyframes naturalPageTurnNext {
-  0% {
-    transform: rotateY(0deg) skewY(0deg) scale(1);
-    filter: brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0));
-    opacity: 1;
-  }
-  35% {
-    transform: rotateY(-35deg) skewY(-2deg) scale(0.99) translateY(-3px);
-    filter: brightness(0.96) drop-shadow(-8px 8px 16px rgba(20, 19, 18, 0.12));
-    opacity: 0.9;
-  }
-  65% {
-    transform: rotateY(-65deg) skewY(-1deg) scale(0.98) translateY(-4px);
-    filter: brightness(0.92) drop-shadow(-14px 12px 22px rgba(20, 19, 18, 0.15));
-    opacity: 0.55;
-  }
-  100% {
-    transform: rotateY(-90deg) skewY(0deg) scale(0.97) translateY(0);
-    filter: brightness(0.88) drop-shadow(0 0 0 rgba(0,0,0,0));
-    opacity: 0;
-  }
+@keyframes pageOutNext {
+  from { transform: perspective(1800px) rotateY(0deg); }
+  to   { transform: perspective(1800px) rotateY(-90deg); }
 }
 
-@keyframes naturalPageEnterNext {
-  0% {
-    transform: rotateY(90deg) skewY(1deg) scale(0.97);
-    filter: brightness(0.88);
-    opacity: 0;
-  }
-  35% {
-    transform: rotateY(55deg) skewY(1deg) scale(0.98);
-    filter: brightness(0.94);
-    opacity: 0.55;
-  }
-  70% {
-    transform: rotateY(20deg) skewY(0.5deg) scale(0.995);
-    filter: brightness(0.98);
-    opacity: 0.88;
-  }
-  100% {
-    transform: rotateY(0deg) skewY(0deg) scale(1);
-    filter: brightness(1);
-    opacity: 1;
-  }
+@keyframes pageOutPrev {
+  from { transform: perspective(1800px) rotateY(0deg); }
+  to   { transform: perspective(1800px) rotateY(90deg); }
 }
 
-@keyframes naturalPageTurnPrev {
-  0% {
-    transform: rotateY(0deg) skewY(0deg) scale(1);
-    filter: brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0));
-    opacity: 1;
-  }
-  35% {
-    transform: rotateY(35deg) skewY(2deg) scale(0.99) translateY(-3px);
-    filter: brightness(0.96) drop-shadow(8px 8px 16px rgba(20, 19, 18, 0.12));
-    opacity: 0.9;
-  }
-  65% {
-    transform: rotateY(65deg) skewY(1deg) scale(0.98) translateY(-4px);
-    filter: brightness(0.92) drop-shadow(14px 12px 22px rgba(20, 19, 18, 0.15));
-    opacity: 0.55;
-  }
-  100% {
-    transform: rotateY(90deg) skewY(0deg) scale(0.97) translateY(0);
-    filter: brightness(0.88) drop-shadow(0 0 0 rgba(0,0,0,0));
-    opacity: 0;
-  }
+@keyframes pageInNext {
+  from { transform: perspective(1800px) rotateY(90deg); }
+  to   { transform: perspective(1800px) rotateY(0deg); }
 }
 
-@keyframes naturalPageEnterPrev {
-  0% {
-    transform: rotateY(-90deg) skewY(-1deg) scale(0.97);
-    filter: brightness(0.88);
-    opacity: 0;
-  }
-  35% {
-    transform: rotateY(-55deg) skewY(-1deg) scale(0.98);
-    filter: brightness(0.94);
-    opacity: 0.55;
-  }
-  70% {
-    transform: rotateY(-20deg) skewY(-0.5deg) scale(0.995);
-    filter: brightness(0.98);
-    opacity: 0.88;
-  }
-  100% {
-    transform: rotateY(0deg) skewY(0deg) scale(1);
-    filter: brightness(1);
-    opacity: 1;
-  }
+@keyframes pageInPrev {
+  from { transform: perspective(1800px) rotateY(-90deg); }
+  to   { transform: perspective(1800px) rotateY(0deg); }
 }
 
-/* Hide scrollbars cleanly while preserving scrollability */
-.no-scrollbar::-webkit-scrollbar,
+/* Hide scrollbars while keeping scroll */
 .hide-scrollbar::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  display: none;
 }
 
-.no-scrollbar,
 .hide-scrollbar {
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-
-
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
