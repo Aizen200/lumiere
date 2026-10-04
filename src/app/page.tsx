@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import StoryArchive from "./StoryArchive";
+import { StoryAccordion, StoryHallmarks, StoryScroll } from "./StoryVariants";
 import GiftingVideo from "./GiftingVideo";
 import HeritageArchive from "./HeritageArchive";
 import { categories, productsByCategory, type CategoryId, type Product } from "./products";
@@ -122,6 +123,9 @@ const giftingRows = [
     alt: "Woman wearing a sterling silver collar and ear cuff",
   },
 ];
+
+// The piece featured in the urgency section
+const lastPiece = productsByCategory.serveware.find((p) => p.pieceNo === "SRV-03")!;
 
 const faqs = [
   {
@@ -273,6 +277,9 @@ export default function LandingPage() {
 
       {/* How these pieces came to be here */}
       <StoryArchive />
+      <StoryScroll />
+      <StoryHallmarks />
+      <StoryAccordion />
 
       {/* The Vault Collection */}
       <section id="collections" className="section-y bg-white">
@@ -482,6 +489,60 @@ export default function LandingPage() {
             </div>
           );
         })}
+      </section>
+
+      {/* Urgency: one piece from the vault, captioned like a museum label */}
+      <section className="section-y bg-sand-base border-t border-sand-border">
+        <div className="container-site grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 lg:items-end">
+
+          <div className="lg:col-span-7">
+            <h2 className="font-serif text-5xl sm:text-6xl xl:text-[4.5rem] leading-[1.02] text-ink mb-8">
+              Once these are gone,
+              <span className="block italic text-ink-muted">they&apos;re gone.</span>
+            </h2>
+            <p className="text-base sm:text-[17px] leading-[1.7] text-ink-secondary max-w-md mb-12 lg:mb-16">
+              No restocks at this price. We can&apos;t buy silver at what it cost when these were made, so when the shelf is empty, the Vault Release is over.
+            </p>
+
+            {/* The kettle's numbers, counted plainly */}
+            <dl className="grid grid-cols-3 border-y border-sand-border mb-10">
+              {[
+                ["1", "made"],
+                ["1", "left"],
+                ["0", "restocks planned"],
+              ].map(([figure, label], i) => (
+                <div key={label} className={`flex flex-col-reverse py-5 sm:py-6 ${i > 0 ? "pl-5 sm:pl-8 border-l border-sand-border" : ""}`}>
+                  <dt className="text-sm text-ink-muted">{label}</dt>
+                  <dd className="font-serif text-4xl sm:text-5xl leading-none text-ink mb-2">{figure}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="flex items-center gap-8">
+              <a href={enquiryLink(lastPiece)} className="link-line">Enquire about this piece</a>
+              <a href="#collections" className="text-[15px] text-ink-muted hover:text-ink transition-colors">
+                See what&apos;s left
+              </a>
+            </div>
+          </div>
+
+          <figure className="lg:col-span-5">
+            <div className="relative aspect-[4/5] overflow-hidden bg-sand-surface">
+              <Image
+                src="/images/artifacts/silver-kettle.jpg"
+                alt={lastPiece.name}
+                fill
+                sizes="(min-width: 1024px) 40vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+            <figcaption className="flex items-baseline justify-between gap-6 pt-4 mt-4 border-t border-ink/15">
+              <span className="font-serif italic text-lg text-ink">{lastPiece.name}</span>
+              <span className="text-[11px] uppercase tracking-[0.16em] text-ink-muted shrink-0">{lastPiece.pieceNo}</span>
+            </figcaption>
+          </figure>
+
+        </div>
       </section>
 
       {/* FAQ */}
