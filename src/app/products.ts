@@ -1,3 +1,8 @@
+// Where product enquiries are sent. Replace with the real address.
+export const ENQUIRY_EMAIL = "enquiries@example.com";
+
+// Each piece's photographs: the first is the cover, the rest show other views.
+// Add more paths to a piece's images list and they appear in its gallery.
 export type Product = {
   id: number;
   name: string;
@@ -15,7 +20,7 @@ export const divinityProducts: Product[] = [
     name: "Ornate Silver Ganesha",
     original: 45000,
     sale: 22500,
-    images: ["/images/products/silver-ganesha.jpg"],
+    images: ["/images/products/silver-ganesha.jpg", "/images/artifacts/silver-ganesha.jpg"],
     pieceNo: "DIV-01",
     provenance: "Calcutta Assay • 925 Sterling"
   },
@@ -24,7 +29,7 @@ export const divinityProducts: Product[] = [
     name: "Silver Mandir with Glass Panels",
     original: 60000,
     sale: 30000,
-    images: ["/images/products/silver-mandir.jpg"],
+    images: ["/images/products/silver-mandir.jpg", "/images/artifacts/silver-mandir.jpg"],
     pieceNo: "DIV-02",
     provenance: "Victorian Engraved Border"
   },
@@ -33,7 +38,7 @@ export const divinityProducts: Product[] = [
     name: "Radha Krishna Idol",
     original: 75000,
     sale: 37500,
-    images: ["/images/products/radha-krishna.jpg"],
+    images: ["/images/products/radha-krishna.jpg", "/images/artifacts/radha-krishna.jpg"],
     pieceNo: "DIV-03",
     provenance: "Chased Solid Bullion"
   },
@@ -64,7 +69,7 @@ export const decorProducts: Product[] = [
     name: "Horseshoe Photo Frame & Desk Clock",
     original: 120000,
     sale: 60000,
-    images: ["/images/products/horseshoe-frame.jpg"],
+    images: ["/images/products/horseshoe-frame.jpg", "/images/artifacts/horseshoe-frame.jpg"],
     pieceNo: "DEC-02",
     provenance: "Five-Light Ornate Casting"
   },
@@ -73,7 +78,7 @@ export const decorProducts: Product[] = [
     name: "Engraved Polo Trophy",
     original: 32000,
     sale: 16000,
-    images: ["/images/products/polo-trophy.jpg"],
+    images: ["/images/products/polo-trophy.jpg", "/images/artifacts/polo-trophy.jpg"],
     pieceNo: "DEC-04",
     provenance: "Velvet Backed Sterling Mount"
   },
@@ -104,7 +109,7 @@ export const servewareProducts: Product[] = [
     name: "Gilt-Lined Decanter & Beakers",
     original: 48000,
     sale: 24000,
-    images: ["/images/products/decanter-beakers.jpg"],
+    images: ["/images/products/decanter-beakers.jpg", "/images/artifacts/silver-barware.jpg"],
     pieceNo: "SRV-02",
     provenance: "Heavy Gauge Mirror Polish"
   },
@@ -113,7 +118,7 @@ export const servewareProducts: Product[] = [
     name: "Victorian Spirit Kettle",
     original: 95000,
     sale: 47500,
-    images: ["/images/products/spirit-kettle.jpg"],
+    images: ["/images/products/spirit-kettle.jpg", "/images/artifacts/silver-kettle.jpg"],
     pieceNo: "SRV-03",
     provenance: "Lion Head Handle Accents"
   },
@@ -151,3 +156,20 @@ export const productsByCategory: Record<CategoryId, Product[]> = {
   serveware: servewareProducts,
   accessories: accessoriesProducts,
 };
+
+export const allProducts = productsByCategory.all;
+
+// Product pages live at /products/<piece number>, e.g. /products/div-01
+export const productSlug = (product: Product) => product.pieceNo.toLowerCase();
+
+export const getProduct = (slug: string) => allProducts.find((p) => productSlug(p) === slug);
+
+export const productCategory = (product: Product) =>
+  categories.find((c) => c.id !== "all" && productsByCategory[c.id].includes(product))!;
+
+export const formatPrice = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
+
+export const enquiryLink = (product: Product, quantity = 1) =>
+  `mailto:${ENQUIRY_EMAIL}?subject=${encodeURIComponent(
+    `Enquiry: ${product.name} (${product.pieceNo})${quantity > 1 ? ` x ${quantity}` : ""}`
+  )}`;
