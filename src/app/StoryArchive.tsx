@@ -145,7 +145,7 @@ export default function StoryArchive() {
 
                 {/* ================= CENTER SPINE OF THE BOOK ================= */}
                 {/* A thin fold where the two pages meet, no blank strip either side */}
-                <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 -top-[51px] -bottom-[51px] w-[6px] book-spine-gradient pointer-events-none z-30" />
+                <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 -top-[51px] -bottom-[51px] w-[2px] book-spine-gradient pointer-events-none z-30" />
 
                 {/* ================= LEFT PAGE (IMAGE) ================= */}
                 <div className={`lg:col-span-6 pb-8 lg:pb-0 -mx-[15px] -mt-[19px] sm:-mx-[27px] sm:-mt-[27px] lg:-ml-[43px] lg:mr-0 lg:-my-[51px] flex flex-col justify-center relative ${
@@ -157,7 +157,7 @@ export default function StoryArchive() {
                 }`}>
                   
                   {/* Left Page Inner Shadow / Gutter Gradient */}
-                  <div className="hidden lg:block absolute top-0 right-0 w-12 h-full book-inner-left-gutter pointer-events-none z-20" />
+                  <div className="hidden lg:block absolute top-0 right-0 w-5 h-full book-inner-left-gutter pointer-events-none z-20" />
 
                   {/* Left plate image, running out to the frame's corner marks */}
                   <div className="relative aspect-[4/3] sm:aspect-[16/11] lg:aspect-auto lg:flex-1 lg:min-h-[24rem] w-full bg-[#f4f2ec] group">
@@ -184,7 +184,7 @@ export default function StoryArchive() {
                 }`}>
                   
                   {/* Right Page Inner Shadow / Gutter Gradient */}
-                  <div className="hidden lg:block absolute top-0 left-0 w-12 h-full book-inner-right-gutter pointer-events-none z-20" />
+                  <div className="hidden lg:block absolute top-0 left-0 w-5 h-full book-inner-right-gutter pointer-events-none z-20" />
 
                   {/* Right Page Body Content */}
                   <div className="flex-1 flex flex-col justify-center pb-8 lg:py-6">
