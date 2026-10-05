@@ -133,7 +133,7 @@ function Hallmark({ index }: { index: number }) {
 
 export function StoryHallmarks() {
   return (
-    <section className="section-y bg-sand-surface">
+    <section className="section-y bg-white">
       <div className="container-site">
 
         <h2 className="font-serif text-4xl sm:text-5xl leading-[1.05] text-ink mb-10 lg:mb-14 max-w-xl">

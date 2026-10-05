@@ -6,6 +6,7 @@ import StoryArchive from "./StoryArchive";
 import { StoryAccordion, StoryHallmarks, StoryScroll } from "./StoryVariants";
 import GiftingVideo from "./GiftingVideo";
 import HeritageArchive from "./HeritageArchive";
+import UrgencySection from "./UrgencySection";
 import { categories, productsByCategory, type CategoryId, type Product } from "./products";
 
 // Where product enquiries are sent. Replace with the real address.
@@ -14,11 +15,13 @@ const ENQUIRY_EMAIL = "enquiries@example.com";
 const enquiryLink = (product: Product) =>
   `mailto:${ENQUIRY_EMAIL}?subject=${encodeURIComponent(`Enquiry: ${product.name} (${product.pieceNo})`)}`;
 
+const formatPrice = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
+
 // Product card; the angle switcher only shows when a piece has several photographs
 function ProductCard({ product }: { product: Product }) {
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   return (
-    <article className="group">
+    <article className="group h-full flex flex-col">
       <div className="relative aspect-[4/5] mb-4 overflow-hidden bg-sand-surface">
         <Image
           src={product.images[activeImgIndex]}
@@ -47,13 +50,30 @@ function ProductCard({ product }: { product: Product }) {
         </div>
       </div>
 
-      <h3 className="text-[15px] text-ink leading-snug mb-4">{product.name}</h3>
-      <a
-        href={enquiryLink(product)}
-        className="inline-flex items-center justify-center w-full h-11 border border-ink/25 text-sm tracking-[0.04em] text-ink hover:bg-ink hover:border-ink hover:text-sand-base transition-colors"
-      >
-        Contact for enquiry
-      </a>
+      <div className="flex items-baseline justify-between gap-4 mb-4">
+        <h3 className="text-[15px] text-ink leading-snug">{product.name}</h3>
+        <p className="relative shrink-0 text-[15px] whitespace-nowrap">
+          <span className="sr-only">Was </span>
+          <s className="text-ink-muted">{formatPrice(product.original)}</s>
+          <span className="text-ink-muted mx-1.5" aria-hidden>/</span>
+          <span className="sr-only">now </span>
+          <span className="text-ink">{formatPrice(product.sale)}</span>
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-2 mt-auto">
+        <a
+          href="#"
+          className="inline-flex items-center justify-center h-11 px-2 border border-ink bg-ink text-[13px] tracking-[0.02em] whitespace-nowrap text-sand-base hover:bg-transparent hover:text-ink transition-colors"
+        >
+          View product
+        </a>
+        <a
+          href={enquiryLink(product)}
+          className="inline-flex items-center justify-center h-11 px-2 border border-ink/25 text-[13px] tracking-[0.02em] whitespace-nowrap text-ink hover:bg-ink hover:border-ink hover:text-sand-base transition-colors"
+        >
+          Enquire now
+        </a>
+      </div>
     </article>
   );
 }
@@ -123,9 +143,6 @@ const giftingRows = [
     alt: "Woman wearing a sterling silver collar and ear cuff",
   },
 ];
-
-// The piece featured in the urgency section
-const lastPiece = productsByCategory.serveware.find((p) => p.pieceNo === "SRV-03")!;
 
 const faqs = [
   {
@@ -491,62 +508,11 @@ export default function LandingPage() {
         })}
       </section>
 
-      {/* Urgency: one piece from the vault, captioned like a museum label */}
-      <section className="section-y bg-sand-base border-t border-sand-border">
-        <div className="container-site grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 lg:items-end">
-
-          <div className="lg:col-span-7">
-            <h2 className="font-serif text-5xl sm:text-6xl xl:text-[4.5rem] leading-[1.02] text-ink mb-8">
-              Once these are gone,
-              <span className="block italic text-ink-muted">they&apos;re gone.</span>
-            </h2>
-            <p className="text-base sm:text-[17px] leading-[1.7] text-ink-secondary max-w-md mb-12 lg:mb-16">
-              No restocks at this price. We can&apos;t buy silver at what it cost when these were made, so when the shelf is empty, the Vault Release is over.
-            </p>
-
-            {/* The kettle's numbers, counted plainly */}
-            <dl className="grid grid-cols-3 border-y border-sand-border mb-10">
-              {[
-                ["1", "made"],
-                ["1", "left"],
-                ["0", "restocks planned"],
-              ].map(([figure, label], i) => (
-                <div key={label} className={`flex flex-col-reverse py-5 sm:py-6 ${i > 0 ? "pl-5 sm:pl-8 border-l border-sand-border" : ""}`}>
-                  <dt className="text-sm text-ink-muted">{label}</dt>
-                  <dd className="font-serif text-4xl sm:text-5xl leading-none text-ink mb-2">{figure}</dd>
-                </div>
-              ))}
-            </dl>
-
-            <div className="flex items-center gap-8">
-              <a href={enquiryLink(lastPiece)} className="link-line">Enquire about this piece</a>
-              <a href="#collections" className="text-[15px] text-ink-muted hover:text-ink transition-colors">
-                See what&apos;s left
-              </a>
-            </div>
-          </div>
-
-          <figure className="lg:col-span-5">
-            <div className="relative aspect-[4/5] overflow-hidden bg-sand-surface">
-              <Image
-                src="/images/artifacts/silver-kettle.jpg"
-                alt={lastPiece.name}
-                fill
-                sizes="(min-width: 1024px) 40vw, 100vw"
-                className="object-cover"
-              />
-            </div>
-            <figcaption className="flex items-baseline justify-between gap-6 pt-4 mt-4 border-t border-ink/15">
-              <span className="font-serif italic text-lg text-ink">{lastPiece.name}</span>
-              <span className="text-[11px] uppercase tracking-[0.16em] text-ink-muted shrink-0">{lastPiece.pieceNo}</span>
-            </figcaption>
-          </figure>
-
-        </div>
-      </section>
+      {/* Urgency: words light up on scroll, then the page turns dark */}
+      <UrgencySection />
 
       {/* FAQ */}
-      <section id="faq" className="section-y bg-sand-surface">
+      <section id="faq" className="section-y bg-white">
         <div className="container-site grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
 
           <div className="lg:col-span-4 lg:sticky lg:top-36 lg:self-start">

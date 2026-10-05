@@ -76,9 +76,9 @@ export default function HeritageArchive() {
   };
 
   return (
-    <section className="section-y bg-sand-surface overflow-hidden">
+    <section className="section-y bg-white overflow-hidden">
       <div className="container-site">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
 
           {/* Workshop photo with magnifying loupe */}
           <figure className="lg:col-span-7">

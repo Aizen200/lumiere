@@ -1,11 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Must match the page-flip animation durations in globals.css
 const FLIP_OUT_MS = 380;
 const FLIP_IN_MS = 520;
+
+// How long each spread stays open before the book turns itself
+const AUTOPLAY_MS = 4000;
 
 export default function StoryArchive() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -80,10 +83,33 @@ export default function StoryArchive() {
     }, FLIP_OUT_MS);
   };
 
+  // Autoplay: turn the page on a timer while the book is on screen, pausing
+  // while the reader hovers or focuses it. A manual turn restarts the timer.
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setIsInView(entry.isIntersecting), { threshold: 0.4 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isPaused || !isInView || isFlipping) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = setTimeout(() => handleTurnPage("next"), AUTOPLAY_MS);
+    return () => clearTimeout(timer);
+    // handleTurnPage is recreated each render; currentPage covers its changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, isPaused, isInView, isFlipping]);
+
   const current = pages[currentPage];
 
   return (
-    <section id="story" className="section-y bg-sand-surface text-ink overflow-hidden">
+    <section ref={sectionRef} id="story" className="section-y bg-white text-ink overflow-hidden">
       <div className="container-site">
         
         {/* Curatorial Header */}
@@ -94,7 +120,13 @@ export default function StoryArchive() {
         </div>
 
         {/* 3D Book Ledger Container */}
-        <div className="relative w-full">
+        <div
+          className="relative w-full"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onFocus={() => setIsPaused(true)}
+          onBlur={() => setIsPaused(false)}
+        >
           
           {/* Book Outer Binding Frame in Warm Sand / Heirloom Linen */}
           <div className="relative w-full bg-[#fbfbf9] border border-[#dcd6ca] p-2 sm:p-3 lg:p-4 shadow-[0_20px_50px_rgba(20,19,18,0.08)] rounded-[2px]">
@@ -112,7 +144,7 @@ export default function StoryArchive() {
               <div className="grid grid-cols-1 lg:grid-cols-12 relative items-stretch">
                 
                 {/* ================= LEFT PAGE (IMAGE) ================= */}
-                <div className={`lg:col-span-6 lg:pr-10 pb-8 lg:pb-0 flex flex-col justify-center relative ${
+                <div className={`lg:col-span-6 lg:pr-10 pb-8 lg:pb-0 -mx-[15px] -mt-[19px] sm:-mx-[27px] sm:-mt-[27px] lg:-ml-[43px] lg:mr-0 lg:-my-[51px] flex flex-col justify-center relative ${
                   isFlipping && flipDirection === "prev" && animatingPhase === "leaving"
                     ? "page-flip-curl-prev"
                     : isFlipping && flipDirection === "next" && animatingPhase === "entering"
@@ -123,14 +155,8 @@ export default function StoryArchive() {
                   {/* Left Page Inner Shadow / Gutter Gradient */}
                   <div className="hidden lg:block absolute top-0 right-0 w-12 h-full book-inner-left-gutter pointer-events-none z-20" />
 
-                  {/* Left Plate Framed Image */}
-                  <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full bg-[#f4f2ec] border border-[#e8e4dc] p-2 relative group">
-                    {/* Inset Photo Corners */}
-                    <div className="absolute top-3 left-3 w-3 h-3 border-t border-l border-[#8c827a]/80 z-20" />
-                    <div className="absolute top-3 right-3 w-3 h-3 border-t border-r border-[#8c827a]/80 z-20" />
-                    <div className="absolute bottom-3 left-3 w-3 h-3 border-b border-l border-[#8c827a]/80 z-20" />
-                    <div className="absolute bottom-3 right-3 w-3 h-3 border-b border-r border-[#8c827a]/80 z-20" />
-
+                  {/* Left plate image, running out to the frame's corner marks */}
+                  <div className="relative aspect-[4/3] sm:aspect-[16/11] lg:aspect-auto lg:flex-1 lg:min-h-[24rem] w-full bg-[#f4f2ec] group">
                     <div className="relative w-full h-full overflow-hidden">
                       <Image
                         src={current.image}
@@ -145,10 +171,10 @@ export default function StoryArchive() {
                 </div>
 
                 {/* ================= CENTER SPINE OF THE BOOK ================= */}
-                <div className="hidden lg:block lg:col-span-1 relative">
+                <div className="hidden lg:block lg:col-span-1 relative lg:-my-[51px]">
                   <div className="absolute inset-0 flex justify-center items-center">
                     {/* Spine Ridge Column */}
-                    <div className="w-8 h-[105%] -my-2 book-spine-gradient border-x border-[#dcd6ca] shadow-[inset_0_0_8px_rgba(20,19,18,0.06)] flex flex-col justify-around items-center py-8">
+                    <div className="w-8 h-full book-spine-gradient border-x border-[#dcd6ca] shadow-[inset_0_0_8px_rgba(20,19,18,0.06)] flex flex-col justify-around items-center py-8">
                       <div className="w-[1px] h-6 bg-[#dcd6ca]" />
                       <div className="w-[1px] h-6 bg-[#dcd6ca]" />
                       <div className="w-[1px] h-6 bg-[#dcd6ca]" />
@@ -158,7 +184,7 @@ export default function StoryArchive() {
                 </div>
 
                 {/* ================= RIGHT PAGE (EDITORIAL TEXT & FLIP CONTROLS) ================= */}
-                <div className={`lg:col-span-5 lg:pl-10 flex flex-col justify-between relative ${
+                <div className={`lg:col-span-5 lg:pl-10 lg:-mr-[43px] lg:pr-[43px] lg:-my-[51px] lg:py-[51px] flex flex-col justify-between relative ${
                   isFlipping && flipDirection === "next" && animatingPhase === "leaving"
                     ? "page-flip-curl-next"
                     : isFlipping && flipDirection === "prev" && animatingPhase === "entering"
