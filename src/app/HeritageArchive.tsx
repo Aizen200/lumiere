@@ -4,6 +4,13 @@ import { useState, useRef, useEffect, MouseEvent } from "react";
 import Image from "next/image";
 
 const LOUPE_RADIUS = 84;
+const LOUPE_ZOOM = 1.6;
+
+const WORKSHOP_SRC = "/images/heritage_workshop.jpg";
+// Swap for a true colour version of the workshop photo when one exists
+const LENS_SRC = WORKSHOP_SRC;
+// Warm grade that brings the monochrome photo to life inside the lens
+const LENS_COLOR_GRADE = "sepia(0.75) saturate(2.4) hue-rotate(-12deg) contrast(1.08) brightness(1.08)";
 
 const points = [
   {
@@ -90,7 +97,7 @@ export default function HeritageArchive() {
               className="relative aspect-[4/3] w-full overflow-hidden bg-sand-border cursor-crosshair"
             >
               <Image
-                src="/images/heritage_workshop.jpg"
+                src={WORKSHOP_SRC}
                 alt="Fraser & Hawes silversmiths at work in the workshop"
                 fill
                 sizes="(min-width: 1024px) 55vw, 100vw"
@@ -117,11 +124,16 @@ export default function HeritageArchive() {
                   }}
                 >
                   <Image
-                    src="/images/hero_silver.jpg"
+                    src={LENS_SRC}
                     alt=""
                     fill
                     sizes="55vw"
-                    className="object-cover scale-135"
+                    className="object-cover"
+                    style={{
+                      transform: `scale(${LOUPE_ZOOM})`,
+                      transformOrigin: `${loupePos.x}% ${loupePos.y}%`,
+                      filter: LENS_SRC === WORKSHOP_SRC ? LENS_COLOR_GRADE : undefined,
+                    }}
                   />
                 </div>
                 <div className="absolute inset-0 rounded-full border-[3px] border-accent-gold shadow-[inset_0_0_15px_rgba(0,0,0,0.35)]" />

@@ -70,7 +70,7 @@ function Gallery({ product }: { product: Product }) {
       <div
         onMouseMove={handleZoom}
         onMouseLeave={() => setZoom(null)}
-        className="relative flex-1 aspect-[4/5] overflow-hidden bg-sand-surface cursor-zoom-in"
+        className="relative flex-1 aspect-[4/5] overflow-hidden bg-sand-surface cursor-zoom-in lg:flex-none lg:w-auto lg:h-[min(calc(100svh-12rem),580px)] lg:max-w-[calc(100%-84px)]"
       >
         <Image
           src={product.images[active]}

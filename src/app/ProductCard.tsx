@@ -48,16 +48,16 @@ export default function ProductCard({ product }: { product: Product }) {
           <span className="text-ink">{formatPrice(product.sale)}</span>
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-2 mt-auto">
+      <div className="flex gap-2 mt-auto">
         <Link
           href={`/products/${productSlug(product)}`}
-          className="inline-flex items-center justify-center h-11 px-2 border border-ink bg-ink text-[13px] tracking-[0.02em] whitespace-nowrap text-sand-base hover:bg-transparent hover:text-ink transition-colors"
+          className="inline-flex items-center justify-center h-11 px-5 border border-ink bg-ink text-[13px] tracking-[0.02em] whitespace-nowrap text-sand-base hover:bg-transparent hover:text-ink transition-colors"
         >
           View product
         </Link>
         <a
           href={enquiryLink(product)}
-          className="inline-flex items-center justify-center h-11 px-2 border border-ink/25 text-[13px] tracking-[0.02em] whitespace-nowrap text-ink hover:bg-ink hover:border-ink hover:text-sand-base transition-colors"
+          className="inline-flex items-center justify-center h-11 px-5 border border-ink/25 text-[13px] tracking-[0.02em] whitespace-nowrap text-ink hover:bg-ink hover:border-ink hover:text-sand-base transition-colors"
         >
           Enquire now
         </a>

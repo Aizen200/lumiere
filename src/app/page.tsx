@@ -131,6 +131,55 @@ export default function LandingPage() {
     el.scrollBy({ left: (direction === "left" ? -1 : 1) * el.clientWidth * 0.8, behavior: "smooth" });
   };
 
+  // Mouse drag-to-slide; touch devices already swipe the row natively
+  const drag = useRef({ active: false, moved: false, startX: 0, startScroll: 0, lastX: 0, lastT: 0, velocity: 0 });
+  const snapTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const onDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = collectionScrollRef.current;
+    if (!el || e.pointerType !== "mouse" || e.button !== 0) return;
+    clearTimeout(snapTimer.current);
+    drag.current = { active: true, moved: false, startX: e.clientX, startScroll: el.scrollLeft, lastX: e.clientX, lastT: e.timeStamp, velocity: 0 };
+  };
+
+  const onDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = collectionScrollRef.current;
+    const d = drag.current;
+    if (!el || !d.active) return;
+    const dx = e.clientX - d.startX;
+    // Only take over once it's clearly a drag, so plain clicks on links still work
+    if (!d.moved && Math.abs(dx) > 5) {
+      d.moved = true;
+      el.setPointerCapture(e.pointerId);
+      el.style.scrollSnapType = "none";
+      el.style.cursor = "grabbing";
+    }
+    if (!d.moved) return;
+    el.scrollLeft = d.startScroll - dx;
+    const dt = e.timeStamp - d.lastT;
+    if (dt > 0) d.velocity = (e.clientX - d.lastX) / dt;
+    d.lastX = e.clientX;
+    d.lastT = e.timeStamp;
+  };
+
+  const onDragEnd = () => {
+    const el = collectionScrollRef.current;
+    const d = drag.current;
+    if (!el || !d.active) return;
+    d.active = false;
+    if (!d.moved) return;
+    el.style.cursor = "";
+
+    // Project the flick forward, then settle on the nearest card
+    const cards = el.children as HTMLCollectionOf<HTMLElement>;
+    const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : el.clientWidth;
+    const projected = el.scrollLeft - d.velocity * 250;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    const target = Math.max(0, Math.min(maxScroll, Math.round(projected / step) * step));
+    el.scrollTo({ left: target, behavior: "smooth" });
+    snapTimer.current = setTimeout(() => (el.style.scrollSnapType = ""), 600);
+  };
+
   const selectCategory = (id: CategoryId) => {
     setActiveCategory(id);
     collectionScrollRef.current?.scrollTo({ left: 0, behavior: "instant" });
@@ -236,8 +285,8 @@ export default function LandingPage() {
 
           <h2 className="font-serif text-4xl sm:text-5xl leading-[1.05] text-ink mb-10 lg:mb-14">The Vault Collection</h2>
 
-          {/* Category tabs: a round thumbnail of a representative piece above each name */}
-          <div role="tablist" aria-label="Collection categories" className="flex sm:justify-center gap-6 sm:gap-10 lg:gap-14 overflow-x-auto hide-scrollbar -mx-2 px-2 pt-2 pb-2 mb-8 lg:mb-12">
+          {/* Category tabs: one equal-width bar, the selected tab filled in ink */}
+          <div role="tablist" aria-label="Collection categories" className="flex gap-0.5 overflow-x-auto hide-scrollbar mb-8 lg:mb-12">
             {categories.map((tab) => {
               const isActive = activeCategory === tab.id;
               return (
@@ -246,22 +295,11 @@ export default function LandingPage() {
                   role="tab"
                   aria-selected={isActive}
                   onClick={() => selectCategory(tab.id)}
-                  className="group/tab shrink-0 flex flex-col items-center gap-3 cursor-pointer"
+                  className={`flex-1 min-w-[8.5rem] h-12 px-4 text-xs uppercase tracking-[0.16em] whitespace-nowrap transition-colors cursor-pointer ${
+                    isActive ? "bg-ink text-sand-base" : "bg-sand-surface text-ink-secondary hover:bg-sand-border hover:text-ink"
+                  }`}
                 >
-                  <span
-                    className={`relative block w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-sand-surface ring-1 ring-offset-4 ring-offset-white transition-all duration-300 ${
-                      isActive ? "ring-ink" : "ring-transparent opacity-75 group-hover/tab:opacity-100 group-hover/tab:ring-ink/20"
-                    }`}
-                  >
-                    <Image src={tab.thumb} alt="" fill unoptimized loading="eager" className="object-cover" />
-                  </span>
-                  <span
-                    className={`text-sm whitespace-nowrap transition-colors ${
-                      isActive ? "text-ink font-medium" : "text-ink-muted group-hover/tab:text-ink"
-                    }`}
-                  >
-                    {tab.label}
-                  </span>
+                  {tab.label}
                 </button>
               );
             })}
@@ -271,7 +309,20 @@ export default function LandingPage() {
           <div
             ref={collectionScrollRef}
             onScroll={updateScrollState}
-            className="flex gap-5 sm:gap-8 overflow-x-auto snap-x snap-mandatory hide-scrollbar"
+            onPointerDown={onDragStart}
+            onPointerMove={onDragMove}
+            onPointerUp={onDragEnd}
+            onPointerCancel={onDragEnd}
+            onDragStart={(e) => e.preventDefault()}
+            onClickCapture={(e) => {
+              // Swallow the click that ends a drag so it doesn't open a product
+              if (drag.current.moved) {
+                e.preventDefault();
+                e.stopPropagation();
+                drag.current.moved = false;
+              }
+            }}
+            className="flex gap-5 sm:gap-8 overflow-x-auto snap-x snap-mandatory hide-scrollbar cursor-grab select-none"
           >
             {displayedProducts.map((product) => (
               <div

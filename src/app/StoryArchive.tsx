@@ -142,9 +142,13 @@ export default function StoryArchive() {
 
               {/* Two Open Pages Spread Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 relative items-stretch">
-                
+
+                {/* ================= CENTER SPINE OF THE BOOK ================= */}
+                {/* A thin fold where the two pages meet, no blank strip either side */}
+                <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 -top-[51px] -bottom-[51px] w-[6px] book-spine-gradient pointer-events-none z-30" />
+
                 {/* ================= LEFT PAGE (IMAGE) ================= */}
-                <div className={`lg:col-span-6 lg:pr-10 pb-8 lg:pb-0 -mx-[15px] -mt-[19px] sm:-mx-[27px] sm:-mt-[27px] lg:-ml-[43px] lg:mr-0 lg:-my-[51px] flex flex-col justify-center relative ${
+                <div className={`lg:col-span-6 pb-8 lg:pb-0 -mx-[15px] -mt-[19px] sm:-mx-[27px] sm:-mt-[27px] lg:-ml-[43px] lg:mr-0 lg:-my-[51px] flex flex-col justify-center relative ${
                   isFlipping && flipDirection === "prev" && animatingPhase === "leaving"
                     ? "page-flip-curl-prev"
                     : isFlipping && flipDirection === "next" && animatingPhase === "entering"
@@ -170,21 +174,8 @@ export default function StoryArchive() {
 
                 </div>
 
-                {/* ================= CENTER SPINE OF THE BOOK ================= */}
-                <div className="hidden lg:block lg:col-span-1 relative lg:-my-[51px]">
-                  <div className="absolute inset-0 flex justify-center items-center">
-                    {/* Spine Ridge Column */}
-                    <div className="w-8 h-full book-spine-gradient border-x border-[#dcd6ca] shadow-[inset_0_0_8px_rgba(20,19,18,0.06)] flex flex-col justify-around items-center py-8">
-                      <div className="w-[1px] h-6 bg-[#dcd6ca]" />
-                      <div className="w-[1px] h-6 bg-[#dcd6ca]" />
-                      <div className="w-[1px] h-6 bg-[#dcd6ca]" />
-                      <div className="w-[1px] h-6 bg-[#dcd6ca]" />
-                    </div>
-                  </div>
-                </div>
-
                 {/* ================= RIGHT PAGE (EDITORIAL TEXT & FLIP CONTROLS) ================= */}
-                <div className={`lg:col-span-5 lg:pl-10 lg:-mr-[43px] lg:pr-[43px] lg:-my-[51px] lg:py-[51px] flex flex-col justify-between relative ${
+                <div className={`lg:col-span-6 lg:pl-10 lg:-mr-[43px] lg:pr-[43px] lg:-my-[51px] lg:py-[51px] flex flex-col justify-between relative ${
                   isFlipping && flipDirection === "next" && animatingPhase === "leaving"
                     ? "page-flip-curl-next"
                     : isFlipping && flipDirection === "prev" && animatingPhase === "entering"
