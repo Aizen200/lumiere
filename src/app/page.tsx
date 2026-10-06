@@ -8,6 +8,7 @@ import GiftingVideo from "./GiftingVideo";
 import HeritageArchive from "./HeritageArchive";
 import UrgencySection from "./UrgencySection";
 import ProductCard from "./ProductCard";
+import CategoryMenu from "./CategoryMenu";
 import { categories, productsByCategory, type CategoryId } from "./products";
 
 const craftPillars = [
@@ -232,6 +233,7 @@ export default function LandingPage() {
 
           <nav className="hidden md:flex items-center gap-8 text-sm text-ink-secondary">
             <a href="#collections" className="hover:text-ink transition-colors">The Vault</a>
+            <CategoryMenu />
             <a href="#story" className="hover:text-ink transition-colors">Our story</a>
             <a href="#craft" className="hover:text-ink transition-colors">Craft</a>
             <a href="#gifting" className="hover:text-ink transition-colors">Gifting</a>

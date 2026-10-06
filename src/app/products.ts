@@ -138,13 +138,44 @@ export const accessoriesProducts: Product[] = [
 ];
 
 
-// Each category shows a thumbnail of one representative piece in the tab bar
+// Each category shows a thumbnail of one representative piece in the tab bar,
+// and a wide banner with a short line on its own collection page
 export const categories = [
-  { id: "all", label: "All pieces", thumb: "/images/categories/all.jpg" },
-  { id: "divinity", label: "Divinity", thumb: "/images/categories/divinity.jpg" },
-  { id: "decor", label: "Art & decor", thumb: "/images/categories/decor.jpg" },
-  { id: "serveware", label: "Serveware", thumb: "/images/categories/serveware.jpg" },
-  { id: "accessories", label: "Accessories", thumb: "/images/categories/accessories.jpg" },
+  {
+    id: "all",
+    label: "All pieces",
+    thumb: "/images/categories/all.jpg",
+    banner: "/images/hero_wide.jpg",
+    blurb: "Every piece from the Vault Release, in one place.",
+  },
+  {
+    id: "divinity",
+    label: "Divinity",
+    thumb: "/images/categories/divinity.jpg",
+    banner: "/images/cat_divinity.jpg",
+    blurb: "Idols and a mandir in solid sterling silver, made for the home shrine.",
+  },
+  {
+    id: "decor",
+    label: "Art & decor",
+    thumb: "/images/categories/decor.jpg",
+    banner: "/images/cat_decor.jpg",
+    blurb: "Vases, frames, trophies and urns to keep for generations.",
+  },
+  {
+    id: "serveware",
+    label: "Serveware",
+    thumb: "/images/categories/serveware.jpg",
+    banner: "/images/cat_serveware.jpg",
+    blurb: "Tea services, decanters and kettles for the table.",
+  },
+  {
+    id: "accessories",
+    label: "Accessories",
+    thumb: "/images/categories/accessories.jpg",
+    banner: "/images/cat_accessories.jpg",
+    blurb: "Smaller pieces for the desk and the dresser.",
+  },
 ] as const;
 
 export type CategoryId = (typeof categories)[number]["id"];
@@ -158,6 +189,11 @@ export const productsByCategory: Record<CategoryId, Product[]> = {
 };
 
 export const allProducts = productsByCategory.all;
+
+// Collection pages live at /collections/<category id>, e.g. /collections/divinity
+export const collectionHref = (id: CategoryId) => `/collections/${id}`;
+
+export const getCategory = (id: string) => categories.find((c) => c.id === id);
 
 // Product pages live at /products/<piece number>, e.g. /products/div-01
 export const productSlug = (product: Product) => product.pieceNo.toLowerCase();

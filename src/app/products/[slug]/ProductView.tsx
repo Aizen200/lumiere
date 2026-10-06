@@ -4,8 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, type MouseEvent } from "react";
 import ProductCard from "../../ProductCard";
+import SiteHeader from "../../SiteHeader";
 import {
   categories,
+  collectionHref,
   enquiryLink,
   formatPrice,
   getProduct,
@@ -130,32 +132,15 @@ export default function ProductView({ slug }: { slug: string }) {
   return (
     <main className="min-h-screen bg-white text-ink">
 
-      {/* Navigation */}
-      <header className="fixed top-0 inset-x-0 z-40 bg-sand-base/90 backdrop-blur-md border-b border-sand-border">
-        <div className="container-site flex items-center justify-between h-16 lg:h-20">
-          <Link href="/" className="font-serif text-xl sm:text-2xl font-medium tracking-[0.16em] uppercase text-ink">
-            Fraser &amp; Hawes
-          </Link>
-          <nav className="hidden md:flex items-center gap-8 text-sm text-ink-secondary">
-            <Link href="/#collections" className="hover:text-ink transition-colors">The Vault</Link>
-            <Link href="/#story" className="hover:text-ink transition-colors">Our story</Link>
-            <Link href="/#craft" className="hover:text-ink transition-colors">Craft</Link>
-            <Link href="/#gifting" className="hover:text-ink transition-colors">Gifting</Link>
-            <Link href="/#faq" className="hover:text-ink transition-colors">FAQ</Link>
-          </nav>
-          <Link href="/#collections" className="md:hidden text-sm text-ink underline underline-offset-4">
-            Shop
-          </Link>
-        </div>
-      </header>
+      <SiteHeader />
 
       <section className="pt-24 lg:pt-32 pb-[3.2rem] sm:pb-[4.4rem] lg:pb-[5.6rem]">
         <div className="container-site">
 
           <nav aria-label="Breadcrumb" className="text-sm text-ink-muted mb-6 lg:mb-8">
-            <Link href="/#collections" className="hover:text-ink transition-colors">The Vault</Link>
+            <Link href={collectionHref("all")} className="hover:text-ink transition-colors">The Vault</Link>
             <span className="mx-2" aria-hidden>/</span>
-            <span>{category.label}</span>
+            <Link href={collectionHref(category.id)} className="hover:text-ink transition-colors">{category.label}</Link>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
